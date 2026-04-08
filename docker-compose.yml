@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: personal-finance-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: personal_finance_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - personal-finance-postgres-data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:9
+    container_name: personal-finance-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5051:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  personal-finance-postgres-data:
