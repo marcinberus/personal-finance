@@ -2,7 +2,7 @@ import request from 'supertest';
 import { AppTestContext } from '../base/app-context';
 import { TEST_USER } from '../base/fixtures';
 
-describe('POST /api/auth/register (e2e)', () => {
+describe('POST /api/auth/register (http)', () => {
   const ctx = new AppTestContext();
 
   beforeAll(() => ctx.init());

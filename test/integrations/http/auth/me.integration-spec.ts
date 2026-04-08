@@ -2,7 +2,7 @@ import request from 'supertest';
 import { AppTestContext } from '../base/app-context';
 import { TEST_USER } from '../base/fixtures';
 
-describe('GET /api/auth/me (e2e)', () => {
+describe('GET /api/auth/me (http)', () => {
   const ctx = new AppTestContext();
   let accessToken: string;
 

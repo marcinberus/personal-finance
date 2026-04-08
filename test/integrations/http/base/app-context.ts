@@ -1,8 +1,8 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { App } from 'supertest/types';
-import { AppModule } from '../../src/app.module';
-import { PrismaService } from '../../src/prisma/prisma.service';
+import { AppModule } from '../../../../src/app.module';
+import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { MockPrismaService } from './mock-prisma';
 
 export class AppTestContext {

@@ -21,6 +21,8 @@ export class AuthController {
     return await this.authService.login(dto);
   }
 
+  //TODO: Move to one decorator
+  //https://docs.nestjs.com/custom-decorators#decorator-composition
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Get('me')
