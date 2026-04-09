@@ -78,7 +78,10 @@ describe('UsersService', () => {
     it('should create and return a new user', async () => {
       mockPrismaService.user.create.mockResolvedValue(mockUser);
 
-      const result = await service.create(mockUser.email, mockUser.passwordHash);
+      const result = await service.create(
+        mockUser.email,
+        mockUser.passwordHash,
+      );
 
       expect(mockPrismaService.user.create).toHaveBeenCalledWith({
         data: {

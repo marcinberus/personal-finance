@@ -32,7 +32,10 @@ describe('GET /api/auth/me (http)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
 
-    expect(res.body).toMatchObject({ id: TEST_USER.id, email: TEST_USER.email });
+    expect(res.body).toMatchObject({
+      id: TEST_USER.id,
+      email: TEST_USER.email,
+    });
     expect(res.body).not.toHaveProperty('passwordHash');
   });
 
