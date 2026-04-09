@@ -3,9 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaModule } from '../../../../src/prisma/prisma.module';
-import { UsersModule } from '../../../../src/users/users.module';
-import { AuthModule } from '../../../../src/auth/auth.module';
-import { AuthService } from '../../../../src/auth/auth.service';
+import { UsersModule } from '../../../../src/modules/users/users.module';
+import { AuthModule } from '../../../../src/modules/auth/auth.module';
+import { AuthService } from '../../../../src/modules/auth/auth.service';
 import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { cleanDatabase } from '../database';
 

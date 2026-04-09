@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
-import { JwtGuard } from 'src/auth/jwt.guard';
+import { JwtGuard } from 'src/modules/auth/jwt.guard';
 import { CategoriesService } from './categories.service';
 
 @ApiTags('categories')

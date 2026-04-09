@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../../../../src/prisma/prisma.module';
-import { UsersModule } from '../../../../src/users/users.module';
-import { UsersService } from '../../../../src/users/users.service';
+import { UsersModule } from '../../../../src/modules/users/users.module';
+import { UsersService } from '../../../../src/modules/users/users.service';
 import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { cleanDatabase } from '../database';
 
