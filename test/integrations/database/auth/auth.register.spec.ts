@@ -86,7 +86,9 @@ describe('AuthService.register (integration)', () => {
       password: 'password123',
     });
 
-    const payload = jwtService.decode(result.accessToken);
+    const payload = jwtService.decode<{ sub: string; email: string }>(
+      result.accessToken,
+    );
 
     expect(payload.sub).toBe(result.user.id);
     expect(payload.email).toBe('jwt@example.com');

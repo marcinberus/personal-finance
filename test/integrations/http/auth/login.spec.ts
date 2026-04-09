@@ -17,9 +17,13 @@ describe('POST /api/auth/login (http)', () => {
       .send({ email: TEST_USER.email, password: 'password' })
       .expect(201);
 
-    expect(res.body).toHaveProperty('accessToken');
-    expect(res.body.user).toMatchObject({ email: TEST_USER.email });
-    expect(res.body.user).not.toHaveProperty('passwordHash');
+    const body = res.body as {
+      accessToken: string;
+      user: { id: string; email: string };
+    };
+    expect(body).toHaveProperty('accessToken');
+    expect(body.user).toMatchObject({ email: TEST_USER.email });
+    expect(body.user).not.toHaveProperty('passwordHash');
   });
 
   it('should return 401 for an unknown email', async () => {

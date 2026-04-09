@@ -18,9 +18,13 @@ describe('POST /api/auth/register (http)', () => {
       .send({ email: TEST_USER.email, password: 'password123' })
       .expect(201);
 
-    expect(res.body).toHaveProperty('accessToken');
-    expect(res.body.user).toMatchObject({ email: TEST_USER.email });
-    expect(res.body.user).not.toHaveProperty('passwordHash');
+    const body = res.body as {
+      accessToken: string;
+      user: { id: string; email: string };
+    };
+    expect(body).toHaveProperty('accessToken');
+    expect(body.user).toMatchObject({ email: TEST_USER.email });
+    expect(body.user).not.toHaveProperty('passwordHash');
   });
 
   it('should return 409 when the email is already in use', async () => {
