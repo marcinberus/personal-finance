@@ -14,6 +14,5 @@
   "globalTeardown": "<rootDir>/global-teardown.js",
   "setupFiles": ["<rootDir>/jest-setup.ts"],
   "testTimeout": 30000,
-  "verbose": true,
-  "forceExit": true
+  "verbose": true
 }
