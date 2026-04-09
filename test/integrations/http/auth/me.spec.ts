@@ -18,7 +18,7 @@ describe('GET /api/auth/me (http)', () => {
       .post('/api/auth/login')
       .send({ email: TEST_USER.email, password: 'password' });
 
-    accessToken = res.body.accessToken;
+    accessToken = (res.body as { accessToken: string }).accessToken;
   });
 
   afterAll(() => ctx.close());
