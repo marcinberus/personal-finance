@@ -4,7 +4,7 @@ import { CategoryType } from 'src/generated/prisma/enums';
 
 export class ListCategoriesQueryDto {
   @ApiPropertyOptional({
-    type: String
+    type: String,
   })
   @IsOptional()
   @IsEnum(CategoryType)

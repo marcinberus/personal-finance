@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
