@@ -13,6 +13,6 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     UsersModule,
     AuthModule,
-  ]
+  ],
 })
 export class AppModule {}

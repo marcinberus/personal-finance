@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import type { StringValue } from 'ms';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
@@ -22,7 +23,8 @@ import { AuthController } from './auth.controller';
         return {
           secret,
           signOptions: {
-            expiresIn: (configService.get<string>('JWT_EXPIRES_IN') ?? '1d') as any,
+            expiresIn: (configService.get<string>('JWT_EXPIRES_IN') ??
+              '1d') as StringValue,
           },
         };
       },

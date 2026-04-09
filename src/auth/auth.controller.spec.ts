@@ -30,7 +30,10 @@ describe('AuthController', () => {
 
   describe('register', () => {
     it('should call authService.register and return auth response', async () => {
-      const dto: RegisterDto = { email: 'test@example.com', password: 'password123' };
+      const dto: RegisterDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
       mockAuthService.register.mockResolvedValue(mockAuthResponse);
 
       const result = await controller.register(dto);
@@ -42,7 +45,10 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should call authService.login and return auth response', async () => {
-      const dto: LoginDto = { email: 'test@example.com', password: 'password123' };
+      const dto: LoginDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
       mockAuthService.login.mockResolvedValue(mockAuthResponse);
 
       const result = await controller.login(dto);

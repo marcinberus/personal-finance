@@ -50,7 +50,10 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    const dto: RegisterDto = { email: 'test@example.com', password: 'password123' };
+    const dto: RegisterDto = {
+      email: 'test@example.com',
+      password: 'password123',
+    };
 
     it('should register a new user and return auth response', async () => {
       mockUsersService.findByEmail.mockResolvedValue(null);
@@ -61,7 +64,10 @@ describe('AuthService', () => {
 
       expect(mockUsersService.findByEmail).toHaveBeenCalledWith(dto.email);
       expect(bcrypt.hash).toHaveBeenCalledWith(dto.password, 10);
-      expect(mockUsersService.create).toHaveBeenCalledWith(dto.email, 'hashed-password');
+      expect(mockUsersService.create).toHaveBeenCalledWith(
+        dto.email,
+        'hashed-password',
+      );
       expect(result).toEqual({
         accessToken: 'signed-jwt-token',
         user: { id: mockUser.id, email: mockUser.email },
@@ -72,13 +78,18 @@ describe('AuthService', () => {
       mockUsersService.findByEmail.mockResolvedValue(mockUser);
 
       await expect(service.register(dto)).rejects.toThrow(ConflictException);
-      await expect(service.register(dto)).rejects.toThrow('Email is already in use');
+      await expect(service.register(dto)).rejects.toThrow(
+        'Email is already in use',
+      );
       expect(mockUsersService.create).not.toHaveBeenCalled();
     });
   });
 
   describe('login', () => {
-    const dto: LoginDto = { email: 'test@example.com', password: 'password123' };
+    const dto: LoginDto = {
+      email: 'test@example.com',
+      password: 'password123',
+    };
 
     it('should return auth response for valid credentials', async () => {
       mockUsersService.findByEmail.mockResolvedValue(mockUser);
@@ -87,7 +98,10 @@ describe('AuthService', () => {
       const result = await service.login(dto);
 
       expect(mockUsersService.findByEmail).toHaveBeenCalledWith(dto.email);
-      expect(bcrypt.compare).toHaveBeenCalledWith(dto.password, mockUser.passwordHash);
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        dto.password,
+        mockUser.passwordHash,
+      );
       expect(result).toEqual({
         accessToken: 'signed-jwt-token',
         user: { id: mockUser.id, email: mockUser.email },

@@ -51,14 +51,18 @@ describe('JwtStrategy', () => {
     it('should throw UnauthorizedException when user is not found', async () => {
       mockAuthService.validateUser.mockResolvedValue(null);
 
-      await expect(strategy.validate(payload)).rejects.toThrow(UnauthorizedException);
+      await expect(strategy.validate(payload)).rejects.toThrow(
+        UnauthorizedException,
+      );
       await expect(strategy.validate(payload)).rejects.toThrow('Invalid token');
     });
   });
 
   describe('constructor', () => {
     it('should throw when JWT_SECRET is not configured', () => {
-      const configServiceWithoutSecret = { get: jest.fn().mockReturnValue(undefined) };
+      const configServiceWithoutSecret = {
+        get: jest.fn().mockReturnValue(undefined),
+      };
 
       expect(
         () =>
