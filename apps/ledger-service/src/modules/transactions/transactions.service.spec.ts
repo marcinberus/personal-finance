@@ -349,17 +349,27 @@ describe('TransactionsService', () => {
     const id = 'transaction-id-1';
 
     it('should delete the transaction and return success', async () => {
-      mockPrismaService.transaction.findFirst.mockResolvedValue({ id });
+      mockPrismaService.transaction.findFirst.mockResolvedValue(mockTransaction);
       mockPrismaService.transaction.delete.mockResolvedValue(undefined);
 
       const result = await service.remove(userId, id);
 
       expect(mockPrismaService.transaction.findFirst).toHaveBeenCalledWith({
         where: { id, userId },
-        select: { id: true },
+        include: { category: { select: { id: true, name: true, type: true } } },
       });
       expect(mockPrismaService.transaction.delete).toHaveBeenCalledWith({
         where: { id },
+      });
+      expect(mockPublisher.publishTransactionDeleted).toHaveBeenCalledWith({
+        transactionId: id,
+        userId,
+        categoryId: mockTransaction.categoryId,
+        categoryName: mockTransaction.category.name,
+        amount: mockTransaction.amount,
+        type: mockTransaction.type,
+        transactionDate: mockTransaction.transactionDate.toISOString().substring(0, 10),
+        deletedAt: expect.any(String),
       });
       expect(result).toEqual({ success: true });
     });

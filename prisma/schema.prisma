@@ -62,3 +62,32 @@ model Transaction {
   @@index([userId, transactionDate])
   @@index([categoryId])
 }
+
+// ── Reporting projections ──────────────────────────────────────────────────
+
+model MonthlyReportProjection {
+  id           String   @id @default(uuid())
+  userId       String
+  year         Int
+  month        Int
+  incomeTotal  Decimal  @default(0) @db.Decimal(14, 2)
+  expenseTotal Decimal  @default(0) @db.Decimal(14, 2)
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, year, month])
+  @@index([userId])
+}
+
+model CategorySpendProjection {
+  id           String   @id @default(uuid())
+  userId       String
+  categoryId   String
+  categoryName String
+  year         Int
+  month        Int
+  total        Decimal  @default(0) @db.Decimal(14, 2)
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, categoryId, year, month])
+  @@index([userId, year, month])
+}

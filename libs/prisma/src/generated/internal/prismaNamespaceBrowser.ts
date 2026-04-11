@@ -53,7 +53,9 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Category: 'Category',
-  Transaction: 'Transaction'
+  Transaction: 'Transaction',
+  MonthlyReportProjection: 'MonthlyReportProjection',
+  CategorySpendProjection: 'CategorySpendProjection'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -105,6 +107,33 @@ export const TransactionScalarFieldEnum = {
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const MonthlyReportProjectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  year: 'year',
+  month: 'month',
+  incomeTotal: 'incomeTotal',
+  expenseTotal: 'expenseTotal',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MonthlyReportProjectionScalarFieldEnum = (typeof MonthlyReportProjectionScalarFieldEnum)[keyof typeof MonthlyReportProjectionScalarFieldEnum]
+
+
+export const CategorySpendProjectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  categoryId: 'categoryId',
+  categoryName: 'categoryName',
+  year: 'year',
+  month: 'month',
+  total: 'total',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategorySpendProjectionScalarFieldEnum = (typeof CategorySpendProjectionScalarFieldEnum)[keyof typeof CategorySpendProjectionScalarFieldEnum]
 
 
 export const SortOrder = {

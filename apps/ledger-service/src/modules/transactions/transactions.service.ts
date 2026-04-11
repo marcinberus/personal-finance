@@ -65,6 +65,7 @@ export class TransactionsService {
       transactionId: transaction.id,
       userId: transaction.userId,
       categoryId: transaction.categoryId,
+      categoryName: transaction.category.name,
       amount: transaction.amount.toString(),
       type: transaction.type as 'income' | 'expense',
       description: transaction.description,
@@ -142,8 +143,10 @@ export class TransactionsService {
         id,
         userId,
       },
-      select: {
-        id: true,
+      include: {
+        category: {
+          select: { id: true, name: true, type: true },
+        },
       },
     });
 
@@ -160,6 +163,11 @@ export class TransactionsService {
     await this.publisher.publishTransactionDeleted({
       transactionId: id,
       userId,
+      categoryId: transaction.categoryId,
+      categoryName: transaction.category.name,
+      amount: transaction.amount.toString(),
+      type: transaction.type as 'income' | 'expense',
+      transactionDate: transaction.transactionDate.toISOString().substring(0, 10),
       deletedAt: new Date().toISOString(),
     });
 

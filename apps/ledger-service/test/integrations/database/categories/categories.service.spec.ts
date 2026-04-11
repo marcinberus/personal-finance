@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigModule } from '@nestjs/config';
 import { ConflictException } from '@nestjs/common';
 import { PrismaModule, PrismaService } from '@app/prisma';
-import { CategoriesModule } from '../../../../src/modules/categories/categories.module';
 import { CategoriesService } from '../../../../src/modules/categories/categories.service';
+import { LedgerEventPublisher } from '../../../../src/modules/messaging/ledger-event-publisher.service';
 import { CategoryType } from '@app/prisma/generated/enums';
 import { cleanDatabase } from '../database';
 
@@ -15,10 +14,13 @@ describe('CategoriesService (integration)', () => {
 
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
-        PrismaModule,
-        CategoriesModule,
+      imports: [PrismaModule],
+      providers: [
+        CategoriesService,
+        {
+          provide: LedgerEventPublisher,
+          useValue: { publishCategoryCreated: jest.fn().mockResolvedValue(undefined) },
+        },
       ],
     }).compile();
 

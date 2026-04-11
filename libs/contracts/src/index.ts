@@ -21,3 +21,6 @@ export type {
   CategoryCreatedPayload,
   CategoryCreatedEvent,
 } from './events/category-created.event';
+
+/** The RabbitMQ queue that ledger-service publishes to and reporting-service consumes from. */
+export const LEDGER_EVENTS_QUEUE = 'ledger_events';

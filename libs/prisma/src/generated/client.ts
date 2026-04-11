@@ -54,3 +54,13 @@ export type Category = Prisma.CategoryModel
  * 
  */
 export type Transaction = Prisma.TransactionModel
+/**
+ * Model MonthlyReportProjection
+ * 
+ */
+export type MonthlyReportProjection = Prisma.MonthlyReportProjectionModel
+/**
+ * Model CategorySpendProjection
+ * 
+ */
+export type CategorySpendProjection = Prisma.CategorySpendProjectionModel
