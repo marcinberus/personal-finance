@@ -1,7 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { TRANSACTION_CREATED, TRANSACTION_DELETED } from '@app/contracts';
-import type { TransactionCreatedEvent, TransactionDeletedEvent } from '@app/contracts';
+import type {
+  TransactionCreatedEvent,
+  TransactionDeletedEvent,
+} from '@app/contracts';
 import { ReportingProjectionService } from '../reporting/reporting-projection.service';
 
 @Controller()

@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDateString, IsEnum, IsOptional, IsUUID } from 'class-validator';
-import { TransactionType } from '@app/prisma/generated/enums';
+import { TransactionType } from '../../../prisma/generated/enums';
 
 export class ListTransactionsQueryDto {
   @ApiPropertyOptional({

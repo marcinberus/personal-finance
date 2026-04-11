@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CategoryType } from '@app/prisma/generated/enums';
+import { CategoryType } from '../../prisma/generated/enums';
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';

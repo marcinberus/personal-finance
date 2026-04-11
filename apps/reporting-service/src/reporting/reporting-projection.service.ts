@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { TransactionCreatedPayload, TransactionDeletedPayload } from '@app/contracts';
+import {
+  TransactionCreatedPayload,
+  TransactionDeletedPayload,
+} from '@app/contracts';
 import { PrismaService } from '../prisma/prisma.service';
 
 function extractYearMonth(dateStr: string): { year: number; month: number } {
@@ -11,7 +14,9 @@ function extractYearMonth(dateStr: string): { year: number; month: number } {
 export class ReportingProjectionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async applyTransactionCreated(payload: TransactionCreatedPayload): Promise<void> {
+  async applyTransactionCreated(
+    payload: TransactionCreatedPayload,
+  ): Promise<void> {
     const { year, month } = extractYearMonth(payload.transactionDate);
     const amount = payload.amount;
     const isIncome = payload.type === 'income';
@@ -56,7 +61,9 @@ export class ReportingProjectionService {
     }
   }
 
-  async applyTransactionDeleted(payload: TransactionDeletedPayload): Promise<void> {
+  async applyTransactionDeleted(
+    payload: TransactionDeletedPayload,
+  ): Promise<void> {
     const { year, month } = extractYearMonth(payload.transactionDate);
     const amount = payload.amount;
     const isIncome = payload.type === 'income';

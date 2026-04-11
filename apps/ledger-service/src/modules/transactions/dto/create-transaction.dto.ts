@@ -11,7 +11,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { TransactionType } from '@app/prisma/generated/enums';
+import { TransactionType } from '../../../prisma/generated/enums';
 
 export class CreateTransactionDto {
   @ApiProperty()

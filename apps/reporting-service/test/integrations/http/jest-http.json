@@ -1,0 +1,22 @@
+{
+  "displayName": "reporting-service-http",
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".*\\.spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@app/common(|/.*)$": "<rootDir>/../../../../../libs/common/src$1",
+    "^@app/contracts(|/.*)$": "<rootDir>/../../../../../libs/contracts/src$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
+  "setupFiles": ["<rootDir>/jest-setup.ts"],
+  "collectCoverageFrom": [
+    "../../src/**/*.ts",
+    "!../../src/**/*.spec.ts",
+    "!../../src/main.ts",
+    "!../../src/generated/**"
+  ]
+}

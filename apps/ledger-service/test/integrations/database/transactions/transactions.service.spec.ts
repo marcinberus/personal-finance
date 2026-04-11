@@ -1,9 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigModule } from '@nestjs/config';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { PrismaModule, PrismaService } from '@app/prisma';
+import { randomUUID } from 'crypto';
+import { PrismaModule } from '../../../../src/prisma/prisma.module';
+import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { TransactionsService } from '../../../../src/modules/transactions/transactions.service';
 import { LedgerEventPublisher } from '../../../../src/modules/messaging/ledger-event-publisher.service';
-import { CategoryType, TransactionType } from '@app/prisma/generated/enums';
+import {
+  CategoryType,
+  TransactionType,
+} from '../../../../src/prisma/generated/enums';
 import { cleanDatabase } from '../database';
 
 describe('TransactionsService (integration)', () => {
@@ -15,7 +21,10 @@ describe('TransactionsService (integration)', () => {
 
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({
-      imports: [PrismaModule],
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
+        PrismaModule,
+      ],
       providers: [
         TransactionsService,
         {
@@ -39,13 +48,7 @@ describe('TransactionsService (integration)', () => {
   beforeEach(async () => {
     await cleanDatabase(prisma);
 
-    const user = await prisma.user.create({
-      data: {
-        email: 'transactions-test@example.com',
-        passwordHash: 'hash',
-      },
-    });
-    userId = user.id;
+    userId = randomUUID();
 
     const category = await prisma.category.create({
       data: {
@@ -135,12 +138,10 @@ describe('TransactionsService (integration)', () => {
     });
 
     it('throws NotFoundException when the category belongs to another user', async () => {
-      const otherUser = await prisma.user.create({
-        data: { email: 'other@example.com', passwordHash: 'hash' },
-      });
+      const otherUserId = randomUUID();
       const otherCategory = await prisma.category.create({
         data: {
-          userId: otherUser.id,
+          userId: otherUserId,
           name: 'Other Salary',
           type: CategoryType.income,
         },
@@ -265,17 +266,15 @@ describe('TransactionsService (integration)', () => {
     });
 
     it('does not return transactions belonging to another user', async () => {
-      const otherUser = await prisma.user.create({
-        data: { email: 'other-list@example.com', passwordHash: 'hash' },
-      });
+      const otherUserId = randomUUID();
       const otherCategory = await prisma.category.create({
         data: {
-          userId: otherUser.id,
+          userId: otherUserId,
           name: 'Other Income',
           type: CategoryType.income,
         },
       });
-      await transactionsService.create(otherUser.id, {
+      await transactionsService.create(otherUserId, {
         categoryId: otherCategory.id,
         amount: 9999,
         type: TransactionType.income,
@@ -315,17 +314,15 @@ describe('TransactionsService (integration)', () => {
     });
 
     it('throws NotFoundException when the transaction belongs to another user', async () => {
-      const otherUser = await prisma.user.create({
-        data: { email: 'other-get@example.com', passwordHash: 'hash' },
-      });
+      const otherUserId = randomUUID();
       const otherCategory = await prisma.category.create({
         data: {
-          userId: otherUser.id,
+          userId: otherUserId,
           name: 'Other Income',
           type: CategoryType.income,
         },
       });
-      const otherTransaction = await transactionsService.create(otherUser.id, {
+      const otherTransaction = await transactionsService.create(otherUserId, {
         categoryId: otherCategory.id,
         amount: 100,
         type: TransactionType.income,
@@ -365,17 +362,15 @@ describe('TransactionsService (integration)', () => {
     });
 
     it('throws NotFoundException when the transaction belongs to another user', async () => {
-      const otherUser = await prisma.user.create({
-        data: { email: 'other-remove@example.com', passwordHash: 'hash' },
-      });
+      const otherUserId = randomUUID();
       const otherCategory = await prisma.category.create({
         data: {
-          userId: otherUser.id,
+          userId: otherUserId,
           name: 'Other Income',
           type: CategoryType.income,
         },
       });
-      const otherTransaction = await transactionsService.create(otherUser.id, {
+      const otherTransaction = await transactionsService.create(otherUserId, {
         categoryId: otherCategory.id,
         amount: 100,
         type: TransactionType.income,

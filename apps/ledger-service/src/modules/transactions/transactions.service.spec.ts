@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '@app/prisma';
-import { TransactionType } from '@app/prisma/generated/enums';
+import { PrismaService } from '../../prisma/prisma.service';
+import { TransactionType } from '../../prisma/generated/enums';
 import { TransactionsService } from './transactions.service';
 import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -349,7 +349,9 @@ describe('TransactionsService', () => {
     const id = 'transaction-id-1';
 
     it('should delete the transaction and return success', async () => {
-      mockPrismaService.transaction.findFirst.mockResolvedValue(mockTransaction);
+      mockPrismaService.transaction.findFirst.mockResolvedValue(
+        mockTransaction,
+      );
       mockPrismaService.transaction.delete.mockResolvedValue(undefined);
 
       const result = await service.remove(userId, id);
@@ -368,7 +370,10 @@ describe('TransactionsService', () => {
         categoryName: mockTransaction.category.name,
         amount: mockTransaction.amount,
         type: mockTransaction.type,
-        transactionDate: mockTransaction.transactionDate.toISOString().substring(0, 10),
+        transactionDate: mockTransaction.transactionDate
+          .toISOString()
+          .substring(0, 10),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         deletedAt: expect.any(String),
       });
       expect(result).toEqual({ success: true });

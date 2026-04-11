@@ -1,9 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigModule } from '@nestjs/config';
 import { ConflictException } from '@nestjs/common';
-import { PrismaModule, PrismaService } from '@app/prisma';
+import { randomUUID } from 'crypto';
+import { PrismaModule } from '../../../../src/prisma/prisma.module';
+import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { CategoriesService } from '../../../../src/modules/categories/categories.service';
 import { LedgerEventPublisher } from '../../../../src/modules/messaging/ledger-event-publisher.service';
-import { CategoryType } from '@app/prisma/generated/enums';
+import { CategoryType } from '../../../../src/prisma/generated/enums';
 import { cleanDatabase } from '../database';
 
 describe('CategoriesService (integration)', () => {
@@ -14,12 +17,17 @@ describe('CategoriesService (integration)', () => {
 
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({
-      imports: [PrismaModule],
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
+        PrismaModule,
+      ],
       providers: [
         CategoriesService,
         {
           provide: LedgerEventPublisher,
-          useValue: { publishCategoryCreated: jest.fn().mockResolvedValue(undefined) },
+          useValue: {
+            publishCategoryCreated: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
     }).compile();
@@ -35,13 +43,7 @@ describe('CategoriesService (integration)', () => {
   beforeEach(async () => {
     await cleanDatabase(prisma);
 
-    const user = await prisma.user.create({
-      data: {
-        email: 'categories-test@example.com',
-        passwordHash: 'hash',
-      },
-    });
-    userId = user.id;
+    userId = randomUUID();
   });
 
   describe('create', () => {
@@ -109,21 +111,19 @@ describe('CategoriesService (integration)', () => {
     });
 
     it('allows two different users to have categories with the same name and type', async () => {
-      const secondUser = await prisma.user.create({
-        data: { email: 'other@example.com', passwordHash: 'hash' },
-      });
+      const secondUserId = randomUUID();
 
       await categoriesService.create(userId, {
         name: 'Salary',
         type: CategoryType.income,
       });
 
-      const category = await categoriesService.create(secondUser.id, {
+      const category = await categoriesService.create(secondUserId, {
         name: 'Salary',
         type: CategoryType.income,
       });
 
-      expect(category.userId).toBe(secondUser.id);
+      expect(category.userId).toBe(secondUserId);
     });
   });
 
@@ -178,10 +178,8 @@ describe('CategoriesService (integration)', () => {
     });
 
     it('does not return categories belonging to another user', async () => {
-      const secondUser = await prisma.user.create({
-        data: { email: 'other2@example.com', passwordHash: 'hash' },
-      });
-      await categoriesService.create(secondUser.id, {
+      const secondUserId = randomUUID();
+      await categoriesService.create(secondUserId, {
         name: 'Salary',
         type: CategoryType.income,
       });

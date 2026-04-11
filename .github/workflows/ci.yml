@@ -24,8 +24,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Generate Prisma client
-        run: npx prisma generate
+      - name: Generate Prisma clients
+        run: npm run prisma:generate:all
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
@@ -52,8 +52,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Prisma client
-        run: npx prisma generate
+      - name: Generate Prisma clients
+        run: npm run prisma:generate:all
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
@@ -62,6 +62,9 @@ jobs:
 
       - name: Run HTTP integration tests (ledger-service)
         run: npm run test:http:ledger
+
+      - name: Run HTTP integration tests (reporting-service)
+        run: npm run test:http:reporting
 
   integration-database-tests:
     name: Integration Tests (Database)
@@ -80,8 +83,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Prisma client
-        run: npx prisma generate
+      - name: Generate Prisma clients
+        run: npm run prisma:generate:all
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
@@ -90,3 +93,6 @@ jobs:
 
       - name: Run database integration tests (ledger-service)
         run: npm run test:database:ledger
+
+      - name: Run database integration tests (reporting-service)
+        run: npm run test:database:reporting

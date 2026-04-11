@@ -8,7 +8,6 @@
   },
   "moduleNameMapper": {
     "^@app/common(|/.*)$": "<rootDir>/../../../../../libs/common/src$1",
-    "^@app/prisma(|/.*)$": "<rootDir>/../../../../../libs/prisma/src$1",
     "^@app/contracts(|/.*)$": "<rootDir>/../../../../../libs/contracts/src$1",
     "^(\\.{1,2}/.*)\\.js$": "$1"
   },
