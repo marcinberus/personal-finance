@@ -1,4 +1,8 @@
-export type { CategoryType, TransactionType, EventEnvelope } from './events/envelope';
+export type {
+  CategoryType,
+  TransactionType,
+  EventEnvelope,
+} from './events/envelope';
 
 export { TRANSACTION_CREATED } from './events/transaction-created.event';
 export type {

@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '@app/prisma';
 import { TransactionType } from '@app/prisma/generated/enums';
 import { TransactionsService } from './transactions.service';
+import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ListTransactionsQueryDto } from './dto/list-transactions-query.dto';
 
@@ -42,6 +43,11 @@ const mockPrismaService = {
   },
 };
 
+const mockPublisher = {
+  publishTransactionCreated: jest.fn(),
+  publishTransactionDeleted: jest.fn(),
+};
+
 describe('TransactionsService', () => {
   let service: TransactionsService;
 
@@ -50,12 +56,15 @@ describe('TransactionsService', () => {
       providers: [
         TransactionsService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: LedgerEventPublisher, useValue: mockPublisher },
       ],
     }).compile();
 
     service = module.get<TransactionsService>(TransactionsService);
 
     jest.clearAllMocks();
+    mockPublisher.publishTransactionCreated.mockResolvedValue(undefined);
+    mockPublisher.publishTransactionDeleted.mockResolvedValue(undefined);
   });
 
   describe('create', () => {
