@@ -27,8 +27,9 @@ jobs:
       - name: Generate Prisma clients
         run: npm run prisma:generate:all
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
+          IDENTITY_DATABASE_URL: ${{ secrets.IDENTITY_DATABASE_URL }}
+          LEDGER_DATABASE_URL: ${{ secrets.LEDGER_DATABASE_URL }}
+          REPORTING_DATABASE_URL: ${{ secrets.REPORTING_DATABASE_URL }}
       - name: Build
         run: npm run build:all
 
@@ -55,7 +56,9 @@ jobs:
       - name: Generate Prisma clients
         run: npm run prisma:generate:all
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          IDENTITY_DATABASE_URL: ${{ secrets.IDENTITY_DATABASE_URL }}
+          LEDGER_DATABASE_URL: ${{ secrets.LEDGER_DATABASE_URL }}
+          REPORTING_DATABASE_URL: ${{ secrets.REPORTING_DATABASE_URL }}
 
       - name: Run HTTP integration tests (identity-service)
         run: npm run test:http:identity
@@ -86,7 +89,9 @@ jobs:
       - name: Generate Prisma clients
         run: npm run prisma:generate:all
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          IDENTITY_DATABASE_URL: ${{ secrets.IDENTITY_DATABASE_URL }}
+          LEDGER_DATABASE_URL: ${{ secrets.LEDGER_DATABASE_URL }}
+          REPORTING_DATABASE_URL: ${{ secrets.REPORTING_DATABASE_URL }}
 
       - name: Run database integration tests (identity-service)
         run: npm run test:database:identity
