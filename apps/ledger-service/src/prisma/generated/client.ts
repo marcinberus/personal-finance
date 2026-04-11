@@ -49,3 +49,8 @@ export type Category = Prisma.CategoryModel
  * 
  */
 export type Transaction = Prisma.TransactionModel
+/**
+ * Model OutboxMessage
+ * 
+ */
+export type OutboxMessage = Prisma.OutboxMessageModel

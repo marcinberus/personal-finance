@@ -3,11 +3,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Category, Transaction } from '../../prisma/generated/client';
+import { Category, Prisma, Transaction } from '../../prisma/generated/client';
+import {
+  TRANSACTION_CREATED,
+  TRANSACTION_DELETED,
+  type EventEnvelope,
+  type TransactionCreatedPayload,
+  type TransactionDeletedPayload,
+} from '@app/contracts';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ListTransactionsQueryDto } from './dto/list-transactions-query.dto';
-import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
 
 export type TransactionWithCategory = Transaction & {
   category: Pick<Category, 'id' | 'name' | 'type'>;
@@ -15,67 +22,87 @@ export type TransactionWithCategory = Transaction & {
 
 @Injectable()
 export class TransactionsService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly publisher: LedgerEventPublisher,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
+
+  private createOutboxEnvelope(
+    payload: TransactionCreatedPayload | TransactionDeletedPayload,
+  ): Prisma.InputJsonObject {
+    const envelope: EventEnvelope & {
+      payload: TransactionCreatedPayload | TransactionDeletedPayload;
+    } = {
+      eventId: randomUUID(),
+      occurredAt: new Date().toISOString(),
+      payload,
+    };
+
+    return envelope as unknown as Prisma.InputJsonObject;
+  }
 
   async create(
     userId: string,
     dto: CreateTransactionDto,
   ): Promise<TransactionWithCategory> {
-    const category = await this.prisma.category.findFirst({
-      where: {
-        id: dto.categoryId,
-        userId,
-      },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const category = await tx.category.findFirst({
+        where: {
+          id: dto.categoryId,
+          userId,
+        },
+      });
 
-    if (!category) {
-      throw new NotFoundException('Category not found');
-    }
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
 
-    if (category.type !== dto.type) {
-      throw new BadRequestException(
-        'Transaction type must match category type',
-      );
-    }
+      if (category.type !== dto.type) {
+        throw new BadRequestException(
+          'Transaction type must match category type',
+        );
+      }
 
-    const transaction = await this.prisma.transaction.create({
-      data: {
-        userId,
-        categoryId: dto.categoryId,
-        amount: dto.amount.toString(),
-        type: dto.type,
-        description: dto.description?.trim() || null,
-        transactionDate: new Date(dto.transactionDate),
-      },
-      include: {
-        category: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
+      const transaction = await tx.transaction.create({
+        data: {
+          userId,
+          categoryId: dto.categoryId,
+          amount: dto.amount.toString(),
+          type: dto.type,
+          description: dto.description?.trim() || null,
+          transactionDate: new Date(dto.transactionDate),
+        },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              type: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    await this.publisher.publishTransactionCreated({
-      transactionId: transaction.id,
-      userId: transaction.userId,
-      categoryId: transaction.categoryId,
-      categoryName: transaction.category.name,
-      amount: transaction.amount.toString(),
-      type: transaction.type as 'income' | 'expense',
-      description: transaction.description,
-      transactionDate: transaction.transactionDate
-        .toISOString()
-        .substring(0, 10),
-      createdAt: transaction.createdAt.toISOString(),
-    });
+      const payload: TransactionCreatedPayload = {
+        transactionId: transaction.id,
+        userId: transaction.userId,
+        categoryId: transaction.categoryId,
+        categoryName: transaction.category.name,
+        amount: transaction.amount.toString(),
+        type: transaction.type as 'income' | 'expense',
+        description: transaction.description,
+        transactionDate: transaction.transactionDate
+          .toISOString()
+          .substring(0, 10),
+        createdAt: transaction.createdAt.toISOString(),
+      };
 
-    return transaction;
+      await tx.outboxMessage.create({
+        data: {
+          eventType: TRANSACTION_CREATED,
+          payload: this.createOutboxEnvelope(payload),
+        },
+      });
+
+      return transaction;
+    });
   }
 
   list(
@@ -138,43 +165,52 @@ export class TransactionsService {
   }
 
   async remove(userId: string, id: string): Promise<{ success: boolean }> {
-    const transaction = await this.prisma.transaction.findFirst({
-      where: {
-        id,
-        userId,
-      },
-      include: {
-        category: {
-          select: { id: true, name: true, type: true },
+    return this.prisma.$transaction(async (tx) => {
+      const transaction = await tx.transaction.findFirst({
+        where: {
+          id,
+          userId,
         },
-      },
+        include: {
+          category: {
+            select: { id: true, name: true, type: true },
+          },
+        },
+      });
+
+      if (!transaction) {
+        throw new NotFoundException('Transaction not found');
+      }
+
+      await tx.transaction.delete({
+        where: {
+          id: transaction.id,
+        },
+      });
+
+      const payload: TransactionDeletedPayload = {
+        transactionId: id,
+        userId,
+        categoryId: transaction.categoryId,
+        categoryName: transaction.category.name,
+        amount: transaction.amount.toString(),
+        type: transaction.type as 'income' | 'expense',
+        transactionDate: transaction.transactionDate
+          .toISOString()
+          .substring(0, 10),
+        deletedAt: new Date().toISOString(),
+      };
+
+      await tx.outboxMessage.create({
+        data: {
+          eventType: TRANSACTION_DELETED,
+          payload: this.createOutboxEnvelope(payload),
+        },
+      });
+
+      return {
+        success: true,
+      };
     });
-
-    if (!transaction) {
-      throw new NotFoundException('Transaction not found');
-    }
-
-    await this.prisma.transaction.delete({
-      where: {
-        id: transaction.id,
-      },
-    });
-
-    await this.publisher.publishTransactionDeleted({
-      transactionId: id,
-      userId,
-      categoryId: transaction.categoryId,
-      categoryName: transaction.category.name,
-      amount: transaction.amount.toString(),
-      type: transaction.type as 'income' | 'expense',
-      transactionDate: transaction.transactionDate
-        .toISOString()
-        .substring(0, 10),
-      deletedAt: new Date().toISOString(),
-    });
-
-    return {
-      success: true,
-    };
   }
 }
