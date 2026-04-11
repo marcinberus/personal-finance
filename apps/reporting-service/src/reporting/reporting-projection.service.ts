@@ -5,6 +5,13 @@ import {
 } from '@app/contracts';
 import { PrismaService } from '../prisma/prisma.service';
 
+export interface ProjectionEventContext {
+  eventName: string;
+  eventId: string;
+  occurredAt: string;
+  correlationId?: string;
+}
+
 function extractYearMonth(dateStr: string): { year: number; month: number } {
   const [year, month] = dateStr.substring(0, 7).split('-').map(Number);
   return { year, month };
@@ -16,7 +23,10 @@ export class ReportingProjectionService {
 
   async applyTransactionCreated(
     payload: TransactionCreatedPayload,
+    context?: ProjectionEventContext,
   ): Promise<void> {
+    this.keepContextHook(context);
+
     const { year, month } = extractYearMonth(payload.transactionDate);
     const amount = payload.amount;
     const isIncome = payload.type === 'income';
@@ -63,7 +73,10 @@ export class ReportingProjectionService {
 
   async applyTransactionDeleted(
     payload: TransactionDeletedPayload,
+    context?: ProjectionEventContext,
   ): Promise<void> {
+    this.keepContextHook(context);
+
     const { year, month } = extractYearMonth(payload.transactionDate);
     const amount = payload.amount;
     const isIncome = payload.type === 'income';
@@ -85,6 +98,13 @@ export class ReportingProjectionService {
         },
         data: { total: { decrement: amount } },
       });
+    }
+  }
+
+  // Reserved hook: this keeps event metadata in the application boundary for future dedupe logic.
+  private keepContextHook(context?: ProjectionEventContext): void {
+    if (!context) {
+      return;
     }
   }
 }
