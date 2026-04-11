@@ -1,0 +1,3 @@
+// Sets required env vars before the NestJS app boots in HTTP integration tests.
+process.env.JWT_SECRET = 'test-http-secret';
+process.env.JWT_EXPIRES_IN = '1d';

@@ -10,7 +10,7 @@ export default defineConfig(
     'dist/**',
     'coverage/**',
     'eslint.config.mjs',
-    'src/generated/**',
+    'libs/prisma/src/generated/**',
   ]),
 
   eslint.configs.recommended,

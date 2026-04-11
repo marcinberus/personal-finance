@@ -1,0 +1,19 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".*\\.spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@app/common(|/.*)$": "<rootDir>/../../../../../libs/common/src$1",
+    "^@app/prisma(|/.*)$": "<rootDir>/../../../../../libs/prisma/src$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
+  "globalSetup": "<rootDir>/global-setup.js",
+  "globalTeardown": "<rootDir>/global-teardown.js",
+  "setupFiles": ["<rootDir>/jest-setup.ts"],
+  "testTimeout": 30000,
+  "verbose": true
+}

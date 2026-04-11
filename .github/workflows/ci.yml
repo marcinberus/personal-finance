@@ -30,7 +30,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Build
-        run: npm run build
+        run: npm run build:all
 
       - name: Run unit tests
         run: npm test
@@ -39,9 +39,6 @@ jobs:
     name: Integration Tests (HTTP)
     runs-on: ubuntu-latest
     needs: build
-    env:
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
 
     steps:
       - uses: actions/checkout@v4
@@ -60,8 +57,11 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Run HTTP integration tests
-        run: npm run test:http
+      - name: Run HTTP integration tests (identity-service)
+        run: npm run test:http:identity
+
+      - name: Run HTTP integration tests (ledger-service)
+        run: npm run test:http:ledger
 
   integration-database-tests:
     name: Integration Tests (Database)
@@ -85,5 +85,8 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Run database integration tests
-        run: npm run test:database
+      - name: Run database integration tests (identity-service)
+        run: npm run test:database:identity
+
+      - name: Run database integration tests (ledger-service)
+        run: npm run test:database:ledger
