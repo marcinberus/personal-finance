@@ -3,10 +3,14 @@ import { Category } from '@app/prisma/generated/client';
 import { PrismaService } from '@app/prisma';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
+import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly publisher: LedgerEventPublisher,
+  ) {}
 
   async create(userId: string, dto: CreateCategoryDto): Promise<Category> {
     const normalizedName = dto.name.trim();
@@ -23,13 +27,23 @@ export class CategoriesService {
       throw new ConflictException('Category with this name already exists');
     }
 
-    return this.prisma.category.create({
+    const category = await this.prisma.category.create({
       data: {
         userId,
         name: normalizedName,
         type: dto.type,
       },
     });
+
+    await this.publisher.publishCategoryCreated({
+      categoryId: category.id,
+      userId: category.userId,
+      name: category.name,
+      type: category.type as 'income' | 'expense',
+      createdAt: category.createdAt.toISOString(),
+    });
+
+    return category;
   }
 
   list(userId: string, query: ListCategoriesQueryDto): Promise<Category[]> {

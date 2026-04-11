@@ -7,6 +7,7 @@ import { Category, Transaction } from '@app/prisma/generated/client';
 import { PrismaService } from '@app/prisma';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ListTransactionsQueryDto } from './dto/list-transactions-query.dto';
+import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
 
 export type TransactionWithCategory = Transaction & {
   category: Pick<Category, 'id' | 'name' | 'type'>;
@@ -14,7 +15,10 @@ export type TransactionWithCategory = Transaction & {
 
 @Injectable()
 export class TransactionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly publisher: LedgerEventPublisher,
+  ) {}
 
   async create(
     userId: string,
@@ -37,7 +41,7 @@ export class TransactionsService {
       );
     }
 
-    return this.prisma.transaction.create({
+    const transaction = await this.prisma.transaction.create({
       data: {
         userId,
         categoryId: dto.categoryId,
@@ -56,6 +60,21 @@ export class TransactionsService {
         },
       },
     });
+
+    await this.publisher.publishTransactionCreated({
+      transactionId: transaction.id,
+      userId: transaction.userId,
+      categoryId: transaction.categoryId,
+      amount: transaction.amount.toString(),
+      type: transaction.type as 'income' | 'expense',
+      description: transaction.description,
+      transactionDate: transaction.transactionDate
+        .toISOString()
+        .substring(0, 10),
+      createdAt: transaction.createdAt.toISOString(),
+    });
+
+    return transaction;
   }
 
   list(
@@ -136,6 +155,12 @@ export class TransactionsService {
       where: {
         id: transaction.id,
       },
+    });
+
+    await this.publisher.publishTransactionDeleted({
+      transactionId: id,
+      userId,
+      deletedAt: new Date().toISOString(),
     });
 
     return {

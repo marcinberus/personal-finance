@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '@app/prisma';
 import { CategoryType } from '@app/prisma/generated/enums';
 import { CategoriesService } from './categories.service';
+import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
 
@@ -22,6 +23,10 @@ const mockPrismaService = {
   },
 };
 
+const mockPublisher = {
+  publishCategoryCreated: jest.fn(),
+};
+
 describe('CategoriesService', () => {
   let service: CategoriesService;
 
@@ -30,12 +35,14 @@ describe('CategoriesService', () => {
       providers: [
         CategoriesService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: LedgerEventPublisher, useValue: mockPublisher },
       ],
     }).compile();
 
     service = module.get<CategoriesService>(CategoriesService);
 
     jest.clearAllMocks();
+    mockPublisher.publishCategoryCreated.mockResolvedValue(undefined);
   });
 
   describe('create', () => {
