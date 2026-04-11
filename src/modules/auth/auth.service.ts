@@ -8,6 +8,12 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/modules/users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { User } from 'src/generated/prisma/client';
+
+export type AuthResponse = {
+  accessToken: string;
+  user: { id: string; email: string };
+};
 
 @Injectable()
 export class AuthService {
@@ -16,7 +22,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto): Promise<AuthResponse> {
     const existingUser = await this.usersService.findByEmail(dto.email);
     if (existingUser) {
       throw new ConflictException('Email is already in use');
@@ -28,7 +34,7 @@ export class AuthService {
     return this.buildAuthResponse(user.id, user.email);
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto): Promise<AuthResponse> {
     const user = await this.usersService.findByEmail(dto.email);
 
     if (!user) {
@@ -47,11 +53,14 @@ export class AuthService {
     return this.buildAuthResponse(user.id, user.email);
   }
 
-  async validateUser(userId: string) {
+  async validateUser(userId: string): Promise<User | null> {
     return this.usersService.findById(userId);
   }
 
-  private async buildAuthResponse(userId: string, email: string) {
+  private async buildAuthResponse(
+    userId: string,
+    email: string,
+  ): Promise<AuthResponse> {
     const payload = { sub: userId, email };
 
     const accessToken = await this.jwtService.signAsync(payload);

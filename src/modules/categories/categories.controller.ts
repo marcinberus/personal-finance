@@ -5,6 +5,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
 import { JwtGuard } from 'src/modules/auth/jwt.guard';
 import { CategoriesService } from './categories.service';
+import { Category } from 'src/generated/prisma/client';
 
 @ApiTags('categories')
 @ApiBearerAuth()
@@ -17,7 +18,7 @@ export class CategoriesController {
   create(
     @CurrentUser() user: { id: string; email: string },
     @Body() dto: CreateCategoryDto,
-  ) {
+  ): Promise<Category> {
     return this.categoriesService.create(user.id, dto);
   }
 
@@ -25,7 +26,7 @@ export class CategoriesController {
   list(
     @CurrentUser() user: { id: string; email: string },
     @Query() query: ListCategoriesQueryDto,
-  ) {
+  ): Promise<Category[]> {
     return this.categoriesService.list(user.id, query);
   }
 }

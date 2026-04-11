@@ -3,15 +3,23 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Category, Transaction } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ListTransactionsQueryDto } from './dto/list-transactions-query.dto';
+
+export type TransactionWithCategory = Transaction & {
+  category: Pick<Category, 'id' | 'name' | 'type'>;
+};
 
 @Injectable()
 export class TransactionsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(userId: string, dto: CreateTransactionDto) {
+  async create(
+    userId: string,
+    dto: CreateTransactionDto,
+  ): Promise<TransactionWithCategory> {
     const category = await this.prisma.category.findFirst({
       where: {
         id: dto.categoryId,
@@ -50,7 +58,10 @@ export class TransactionsService {
     });
   }
 
-  list(userId: string, query: ListTransactionsQueryDto) {
+  list(
+    userId: string,
+    query: ListTransactionsQueryDto,
+  ): Promise<TransactionWithCategory[]> {
     const where = {
       userId,
       ...(query.type ? { type: query.type } : {}),
@@ -82,7 +93,7 @@ export class TransactionsService {
     });
   }
 
-  async getById(userId: string, id: string) {
+  async getById(userId: string, id: string): Promise<TransactionWithCategory> {
     const transaction = await this.prisma.transaction.findFirst({
       where: {
         id,
@@ -106,7 +117,7 @@ export class TransactionsService {
     return transaction;
   }
 
-  async remove(userId: string, id: string) {
+  async remove(userId: string, id: string): Promise<{ success: boolean }> {
     const transaction = await this.prisma.transaction.findFirst({
       where: {
         id,

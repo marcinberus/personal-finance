@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { AuthResponse, AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import * as currentUserDecorator from 'src/common/decorators/current-user.decorator';
 import { JwtGuard } from './jwt.guard';
 
 @ApiTags('auth')
@@ -12,12 +12,12 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() dto: RegisterDto) {
+  async register(@Body() dto: RegisterDto): Promise<AuthResponse> {
     return await this.authService.register(dto);
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto) {
+  async login(@Body() dto: LoginDto): Promise<AuthResponse> {
     return await this.authService.login(dto);
   }
 
@@ -26,7 +26,9 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Get('me')
-  me(@CurrentUser() user: { id: string; email: string }) {
+  me(
+    @currentUserDecorator.CurrentUser() user: { id: string; email: string },
+  ): currentUserDecorator.AuthenticatedUser {
     return user;
   }
 }

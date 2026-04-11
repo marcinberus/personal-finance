@@ -11,7 +11,10 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ListTransactionsQueryDto } from './dto/list-transactions-query.dto';
-import { TransactionsService } from './transactions.service';
+import {
+  TransactionWithCategory,
+  TransactionsService,
+} from './transactions.service';
 import { JwtGuard } from '../auth/jwt.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
@@ -26,7 +29,7 @@ export class TransactionsController {
   create(
     @CurrentUser() user: { id: string; email: string },
     @Body() dto: CreateTransactionDto,
-  ) {
+  ): Promise<TransactionWithCategory> {
     return this.transactionsService.create(user.id, dto);
   }
 
@@ -34,7 +37,7 @@ export class TransactionsController {
   list(
     @CurrentUser() user: { id: string; email: string },
     @Query() query: ListTransactionsQueryDto,
-  ) {
+  ): Promise<TransactionWithCategory[]> {
     return this.transactionsService.list(user.id, query);
   }
 
@@ -42,7 +45,7 @@ export class TransactionsController {
   getById(
     @CurrentUser() user: { id: string; email: string },
     @Param('id') id: string,
-  ) {
+  ): Promise<TransactionWithCategory> {
     return this.transactionsService.getById(user.id, id);
   }
 
@@ -50,7 +53,7 @@ export class TransactionsController {
   remove(
     @CurrentUser() user: { id: string; email: string },
     @Param('id') id: string,
-  ) {
+  ): Promise<{ success: boolean }> {
     return this.transactionsService.remove(user.id, id);
   }
 }

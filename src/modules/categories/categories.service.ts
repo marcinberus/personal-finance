@@ -1,4 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { Category } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
@@ -7,7 +8,7 @@ import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(userId: string, dto: CreateCategoryDto) {
+  async create(userId: string, dto: CreateCategoryDto): Promise<Category> {
     const normalizedName = dto.name.trim();
 
     const existingCategory = await this.prisma.category.findFirst({
@@ -31,7 +32,7 @@ export class CategoriesService {
     });
   }
 
-  list(userId: string, query: ListCategoriesQueryDto) {
+  list(userId: string, query: ListCategoriesQueryDto): Promise<Category[]> {
     return this.prisma.category.findMany({
       where: {
         userId,
