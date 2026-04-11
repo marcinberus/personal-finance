@@ -45,3 +45,13 @@ model Transaction {
   @@index([userId, transactionDate])
   @@index([categoryId])
 }
+
+model OutboxMessage {
+  id          String   @id @default(uuid())
+  eventType   String
+  payload     Json
+  createdAt   DateTime @default(now())
+  processedAt DateTime?
+
+  @@index([processedAt, createdAt])
+}

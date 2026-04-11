@@ -3,9 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TransactionType } from '../../prisma/generated/enums';
 import { TransactionsService } from './transactions.service';
-import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ListTransactionsQueryDto } from './dto/list-transactions-query.dto';
+import { TRANSACTION_CREATED, TRANSACTION_DELETED } from '@app/contracts';
 
 const mockCategory = {
   id: 'category-id-1',
@@ -32,6 +32,7 @@ const mockTransaction = {
 };
 
 const mockPrismaService = {
+  $transaction: jest.fn(),
   category: {
     findFirst: jest.fn(),
   },
@@ -41,11 +42,9 @@ const mockPrismaService = {
     findFirst: jest.fn(),
     delete: jest.fn(),
   },
-};
-
-const mockPublisher = {
-  publishTransactionCreated: jest.fn(),
-  publishTransactionDeleted: jest.fn(),
+  outboxMessage: {
+    create: jest.fn(),
+  },
 };
 
 describe('TransactionsService', () => {
@@ -56,15 +55,16 @@ describe('TransactionsService', () => {
       providers: [
         TransactionsService,
         { provide: PrismaService, useValue: mockPrismaService },
-        { provide: LedgerEventPublisher, useValue: mockPublisher },
       ],
     }).compile();
 
     service = module.get<TransactionsService>(TransactionsService);
 
     jest.clearAllMocks();
-    mockPublisher.publishTransactionCreated.mockResolvedValue(undefined);
-    mockPublisher.publishTransactionDeleted.mockResolvedValue(undefined);
+    mockPrismaService.$transaction.mockImplementation(
+      (callback: (tx: typeof mockPrismaService) => unknown) =>
+        Promise.resolve(callback(mockPrismaService)),
+    );
   });
 
   describe('create', () => {
@@ -99,6 +99,13 @@ describe('TransactionsService', () => {
           category: { select: { id: true, name: true, type: true } },
         },
       });
+      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+      const createOutboxCallArg = mockPrismaService.outboxMessage.create.mock
+        .calls[0]?.[0] as unknown as {
+        data: { eventType: string };
+      };
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+      expect(createOutboxCallArg.data.eventType).toBe(TRANSACTION_CREATED);
       expect(result).toEqual(mockTransaction);
     });
 
@@ -153,6 +160,7 @@ describe('TransactionsService', () => {
         'Category not found',
       );
       expect(mockPrismaService.transaction.create).not.toHaveBeenCalled();
+      expect(mockPrismaService.outboxMessage.create).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException when category type does not match transaction type', async () => {
@@ -174,6 +182,7 @@ describe('TransactionsService', () => {
         'Transaction type must match category type',
       );
       expect(mockPrismaService.transaction.create).not.toHaveBeenCalled();
+      expect(mockPrismaService.outboxMessage.create).not.toHaveBeenCalled();
     });
   });
 
@@ -363,19 +372,13 @@ describe('TransactionsService', () => {
       expect(mockPrismaService.transaction.delete).toHaveBeenCalledWith({
         where: { id },
       });
-      expect(mockPublisher.publishTransactionDeleted).toHaveBeenCalledWith({
-        transactionId: id,
-        userId,
-        categoryId: mockTransaction.categoryId,
-        categoryName: mockTransaction.category.name,
-        amount: mockTransaction.amount,
-        type: mockTransaction.type,
-        transactionDate: mockTransaction.transactionDate
-          .toISOString()
-          .substring(0, 10),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        deletedAt: expect.any(String),
-      });
+      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+      const deleteOutboxCallArg = mockPrismaService.outboxMessage.create.mock
+        .calls[0]?.[0] as unknown as {
+        data: { eventType: string };
+      };
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+      expect(deleteOutboxCallArg.data.eventType).toBe(TRANSACTION_DELETED);
       expect(result).toEqual({ success: true });
     });
 
@@ -389,6 +392,7 @@ describe('TransactionsService', () => {
         'Transaction not found',
       );
       expect(mockPrismaService.transaction.delete).not.toHaveBeenCalled();
+      expect(mockPrismaService.outboxMessage.create).not.toHaveBeenCalled();
     });
   });
 });

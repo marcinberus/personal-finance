@@ -5,11 +5,11 @@ import { randomUUID } from 'crypto';
 import { PrismaModule } from '../../../../src/prisma/prisma.module';
 import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { TransactionsService } from '../../../../src/modules/transactions/transactions.service';
-import { LedgerEventPublisher } from '../../../../src/modules/messaging/ledger-event-publisher.service';
 import {
   CategoryType,
   TransactionType,
 } from '../../../../src/prisma/generated/enums';
+import { TRANSACTION_CREATED, TRANSACTION_DELETED } from '@app/contracts';
 import { cleanDatabase } from '../database';
 
 describe('TransactionsService (integration)', () => {
@@ -25,16 +25,7 @@ describe('TransactionsService (integration)', () => {
         ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
         PrismaModule,
       ],
-      providers: [
-        TransactionsService,
-        {
-          provide: LedgerEventPublisher,
-          useValue: {
-            publishTransactionCreated: jest.fn().mockResolvedValue(undefined),
-            publishTransactionDeleted: jest.fn().mockResolvedValue(undefined),
-          },
-        },
-      ],
+      providers: [TransactionsService],
     }).compile();
 
     transactionsService = moduleRef.get(TransactionsService);
@@ -83,6 +74,19 @@ describe('TransactionsService (integration)', () => {
         name: 'Salary',
         type: CategoryType.income,
       });
+
+      const outboxRows = await prisma.$queryRawUnsafe<
+        Array<{
+          eventType: string;
+          payload: { payload: { transactionId: string } };
+        }>
+      >(
+        'SELECT "eventType", "payload" FROM "OutboxMessage" ORDER BY "createdAt" DESC LIMIT 1',
+      );
+
+      expect(outboxRows).toHaveLength(1);
+      expect(outboxRows[0].eventType).toBe(TRANSACTION_CREATED);
+      expect(outboxRows[0].payload.payload.transactionId).toBe(transaction.id);
     });
 
     it('trims whitespace from the description before persisting', async () => {
@@ -350,6 +354,19 @@ describe('TransactionsService (integration)', () => {
 
       const remaining = await transactionsService.list(userId, {});
       expect(remaining.find((t) => t.id === created.id)).toBeUndefined();
+
+      const outboxRows = await prisma.$queryRawUnsafe<
+        Array<{
+          eventType: string;
+          payload: { payload: { transactionId: string } };
+        }>
+      >(
+        'SELECT "eventType", "payload" FROM "OutboxMessage" WHERE "eventType" = $1 ORDER BY "createdAt" DESC LIMIT 1',
+        TRANSACTION_DELETED,
+      );
+
+      expect(outboxRows).toHaveLength(1);
+      expect(outboxRows[0].payload.payload.transactionId).toBe(created.id);
     });
 
     it('throws NotFoundException when the transaction does not exist', async () => {
