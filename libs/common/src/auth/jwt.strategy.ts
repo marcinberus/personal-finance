@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import type { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import type { AuthenticatedUser } from '../decorators/current-user.decorator';
 
-/**
- * Stateless JWT validation strategy for reporting-service.
- * Validates token signature and expiry only — no DB lookup.
- */
+interface JwtPayload {
+  sub: string;
+  email: string;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(configService: ConfigService) {
@@ -14,6 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!secret) {
       throw new Error('JWT_SECRET is not configured');
     }
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -21,10 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: { sub: string; email: string }): {
-    id: string;
-    email: string;
-  } {
+  validate(payload: JwtPayload): AuthenticatedUser {
     return { id: payload.sub, email: payload.email };
   }
 }

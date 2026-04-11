@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { JwtAuthModule } from '@app/common';
 import { PrismaModule } from './prisma/prisma.module';
-import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 
@@ -11,7 +11,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
       isGlobal: true,
     }),
     PrismaModule,
-    AuthModule,
+    JwtAuthModule.register({ enableTokenSigning: true }),
     CategoriesModule,
     TransactionsModule,
   ],

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { JwtAuthModule } from '@app/common';
 import { PrismaModule } from './prisma/prisma.module';
-import { AuthModule } from './auth/auth.module';
 import { ReportingModule } from './reporting/reporting.module';
 import { MessagingModule } from './messaging/messaging.module';
 
@@ -9,7 +9,7 @@ import { MessagingModule } from './messaging/messaging.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
-    AuthModule,
+    JwtAuthModule.register(),
     ReportingModule,
     MessagingModule,
   ],
