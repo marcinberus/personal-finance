@@ -24,5 +24,20 @@ services:
       - postgres
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: personal-finance-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+      RABBITMQ_DEFAULT_VHOST: personal_finance
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - personal-finance-rabbitmq-data:/var/lib/rabbitmq
+
 volumes:
   personal-finance-postgres-data:
+  personal-finance-rabbitmq-data:
