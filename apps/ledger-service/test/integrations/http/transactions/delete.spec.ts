@@ -20,9 +20,7 @@ describe('DELETE /api/transactions/:id (http)', () => {
   beforeEach(() => ctx.prisma.reset());
 
   it('should delete the transaction and return success', async () => {
-    ctx.prisma.transaction.findFirst.mockResolvedValue({
-      id: TEST_TRANSACTION.id,
-    });
+    ctx.prisma.transaction.findFirst.mockResolvedValue(TEST_TRANSACTION);
     ctx.prisma.transaction.delete.mockResolvedValue(undefined);
 
     const res = await request(ctx.getHttpServer())
