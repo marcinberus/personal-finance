@@ -11,5 +11,6 @@ const { connectionString } = JSON.parse(readFileSync(configFile, 'utf-8')) as {
 };
 
 process.env.DATABASE_URL = connectionString;
+process.env.IDENTITY_DATABASE_URL = connectionString;
 process.env.JWT_SECRET = 'integration-test-secret';
 process.env.JWT_EXPIRES_IN = '1d';

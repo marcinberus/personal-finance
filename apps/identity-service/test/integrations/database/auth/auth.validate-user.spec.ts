@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule, PrismaService } from '@app/prisma';
+import { PrismaModule } from '../../../../src/prisma/prisma.module';
+import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { UsersModule } from '../../../../src/modules/users/users.module';
 import { AuthModule } from '../../../../src/modules/auth/auth.module';
 import { AuthService } from '../../../../src/modules/auth/auth.service';

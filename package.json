@@ -12,6 +12,12 @@
     "start:identity:dev": "nest start identity-service --watch",
     "start:ledger": "nest start ledger-service",
     "start:ledger:dev": "nest start ledger-service --watch",
+    "start:reporting": "nest start reporting-service",
+    "start:reporting:dev": "nest start reporting-service --watch",
+    "prisma:generate:identity": "prisma generate --config apps/identity-service/prisma.config.ts",
+    "prisma:generate:ledger": "prisma generate --config apps/ledger-service/prisma.config.ts",
+    "prisma:generate:reporting": "prisma generate --config apps/reporting-service/prisma.config.ts",
+    "prisma:generate:all": "npm run prisma:generate:identity && npm run prisma:generate:ledger && npm run prisma:generate:reporting",
     "build:all": "nest build identity-service && nest build ledger-service && nest build reporting-service",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --max-warnings 0",
     "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -21,8 +27,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:http:identity": "jest --config ./apps/identity-service/test/integrations/http/jest-http.json",
     "test:http:ledger": "jest --config ./apps/ledger-service/test/integrations/http/jest-http.json",
+    "test:http:reporting": "jest --config ./apps/reporting-service/test/integrations/http/jest-http.json",
     "test:database:identity": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./apps/identity-service/test/integrations/database/jest-database.json --runInBand",
-    "test:database:ledger": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./apps/ledger-service/test/integrations/database/jest-database.json --runInBand"
+    "test:database:ledger": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./apps/ledger-service/test/integrations/database/jest-database.json --runInBand",
+    "test:database:reporting": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./apps/reporting-service/test/integrations/database/jest-database.json --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -93,7 +101,6 @@
     },
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src$1",
-      "^@app/prisma(|/.*)$": "<rootDir>/libs/prisma/src$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src$1",
       "^(\\.{1,2}/.*)\\.(js)$": "$1"
     },

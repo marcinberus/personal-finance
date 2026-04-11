@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { Category } from '@app/prisma/generated/client';
-import { PrismaService } from '@app/prisma';
+import { Category } from '../../prisma/generated/client';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
 import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';

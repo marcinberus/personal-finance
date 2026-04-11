@@ -13,7 +13,10 @@ async function bootstrap(): Promise<void> {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: [process.env.RABBITMQ_URL ?? 'amqp://rabbit:rabbit@localhost:5672/personal_finance'],
+      urls: [
+        process.env.RABBITMQ_URL ??
+          'amqp://rabbit:rabbit@localhost:5672/personal_finance',
+      ],
       queue: LEDGER_EVENTS_QUEUE,
       queueOptions: { durable: true },
       noAck: false,

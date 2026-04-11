@@ -10,7 +10,9 @@ export default defineConfig(
     'dist/**',
     'coverage/**',
     'eslint.config.mjs',
-    'libs/prisma/src/generated/**',
+    'apps/identity-service/src/prisma/generated/**',
+    'apps/ledger-service/src/prisma/generated/**',
+    'apps/reporting-service/src/prisma/generated/**',
   ]),
 
   eslint.configs.recommended,

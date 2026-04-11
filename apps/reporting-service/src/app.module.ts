@@ -15,4 +15,3 @@ import { MessagingModule } from './messaging/messaging.module';
   ],
 })
 export class AppModule {}
-

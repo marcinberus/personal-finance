@@ -4,7 +4,7 @@ import { CurrentUser, JwtGuard } from '@app/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
 import { CategoriesService } from './categories.service';
-import { Category } from '@app/prisma/generated/client';
+import { Category } from '../../prisma/generated/client';
 
 @ApiTags('categories')
 @ApiBearerAuth()

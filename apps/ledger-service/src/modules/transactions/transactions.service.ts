@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Category, Transaction } from '@app/prisma/generated/client';
-import { PrismaService } from '@app/prisma';
+import { Category, Transaction } from '../../prisma/generated/client';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ListTransactionsQueryDto } from './dto/list-transactions-query.dto';
 import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
@@ -167,7 +167,9 @@ export class TransactionsService {
       categoryName: transaction.category.name,
       amount: transaction.amount.toString(),
       type: transaction.type as 'income' | 'expense',
-      transactionDate: transaction.transactionDate.toISOString().substring(0, 10),
+      transactionDate: transaction.transactionDate
+        .toISOString()
+        .substring(0, 10),
       deletedAt: new Date().toISOString(),
     });
 

@@ -22,10 +22,14 @@ module.exports = async function globalSetup() {
   writeFileSync(CONFIG_FILE, JSON.stringify({ connectionString }));
 
   console.log('[Integration] Running Prisma migrations...');
-  execSync('npx prisma migrate deploy', {
+  execSync('npx prisma migrate deploy --config apps/ledger-service/prisma.config.ts', {
     stdio: 'inherit',
     cwd: path.join(__dirname, '..', '..', '..', '..', '..'),
-    env: { ...process.env, DATABASE_URL: connectionString },
+    env: {
+      ...process.env,
+      DATABASE_URL: connectionString,
+      LEDGER_DATABASE_URL: connectionString,
+    },
   });
 
   console.log('[Integration] Setup complete.\n');

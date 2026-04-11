@@ -1,7 +1,7 @@
 import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '@app/prisma';
-import { CategoryType } from '@app/prisma/generated/enums';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CategoryType } from '../../prisma/generated/enums';
 import { CategoriesService } from './categories.service';
 import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
 import { CreateCategoryDto } from './dto/create-category.dto';

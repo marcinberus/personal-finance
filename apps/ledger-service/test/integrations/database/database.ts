@@ -1,4 +1,4 @@
-import { PrismaService } from '@app/prisma';
+import { PrismaService } from '../../../src/prisma/prisma.service';
 
 /**
  * Deletes all rows from every application table in FK-safe order so each
@@ -7,5 +7,4 @@ import { PrismaService } from '@app/prisma';
 export async function cleanDatabase(prisma: PrismaService): Promise<void> {
   await prisma.transaction.deleteMany();
   await prisma.category.deleteMany();
-  await prisma.user.deleteMany();
 }
