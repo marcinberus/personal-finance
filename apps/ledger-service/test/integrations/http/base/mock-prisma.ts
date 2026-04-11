@@ -18,8 +18,8 @@ export class MockPrismaService {
     updateMany: jest.fn(),
   };
 
-  $transaction = jest.fn(async (callback: (tx: this) => unknown) =>
-    callback(this),
+  $transaction = jest.fn((callback: (tx: this) => unknown) =>
+    Promise.resolve(callback(this)),
   );
 
   $connect = jest.fn();
