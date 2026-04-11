@@ -7,19 +7,22 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "start:identity": "nest start identity-service",
+    "start:identity:dev": "nest start identity-service --watch",
+    "start:ledger": "nest start ledger-service",
+    "start:ledger:dev": "nest start ledger-service --watch",
+    "build:all": "nest build identity-service && nest build ledger-service && nest build reporting-service",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --max-warnings 0",
     "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:http": "jest --config ./test/integrations/http/jest-http.json",
-    "test:database": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./test/integrations/database/jest-database.json --runInBand"
+    "test:http:identity": "jest --config ./apps/identity-service/test/integrations/http/jest-http.json",
+    "test:http:ledger": "jest --config ./apps/ledger-service/test/integrations/http/jest-http.json",
+    "test:database:identity": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./apps/identity-service/test/integrations/database/jest-database.json --runInBand",
+    "test:database:ledger": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./apps/ledger-service/test/integrations/database/jest-database.json --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -71,24 +74,20 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
+    "moduleFileExtensions": ["js", "json", "ts"],
+    "rootDir": ".",
+    "testRegex": "(apps|libs)/.*\\.spec\\.ts$",
+    "testPathIgnorePatterns": ["/node_modules/", "/test/integrations/"],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "moduleNameMapper": {
-      "^src/(.*)$": "<rootDir>/$1",
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src$1",
+      "^@app/prisma(|/.*)$": "<rootDir>/libs/prisma/src$1",
       "^(\\.{1,2}/.*)\\.(js)$": "$1"
     },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
+    "collectCoverageFrom": ["apps/**/*.(t|j)s", "libs/**/*.(t|j)s"],
+    "coverageDirectory": "./coverage",
     "testEnvironment": "node"
   }
 }
