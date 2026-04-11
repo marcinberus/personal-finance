@@ -386,7 +386,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Category: 'Category',
-  Transaction: 'Transaction'
+  Transaction: 'Transaction',
+  MonthlyReportProjection: 'MonthlyReportProjection',
+  CategorySpendProjection: 'CategorySpendProjection'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -402,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "category" | "transaction"
+    modelProps: "user" | "category" | "transaction" | "monthlyReportProjection" | "categorySpendProjection"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -628,6 +630,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MonthlyReportProjection: {
+      payload: Prisma.$MonthlyReportProjectionPayload<ExtArgs>
+      fields: Prisma.MonthlyReportProjectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MonthlyReportProjectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MonthlyReportProjectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload>
+        }
+        findFirst: {
+          args: Prisma.MonthlyReportProjectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MonthlyReportProjectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload>
+        }
+        findMany: {
+          args: Prisma.MonthlyReportProjectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload>[]
+        }
+        create: {
+          args: Prisma.MonthlyReportProjectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload>
+        }
+        createMany: {
+          args: Prisma.MonthlyReportProjectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MonthlyReportProjectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload>[]
+        }
+        delete: {
+          args: Prisma.MonthlyReportProjectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload>
+        }
+        update: {
+          args: Prisma.MonthlyReportProjectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.MonthlyReportProjectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MonthlyReportProjectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MonthlyReportProjectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.MonthlyReportProjectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyReportProjectionPayload>
+        }
+        aggregate: {
+          args: Prisma.MonthlyReportProjectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMonthlyReportProjection>
+        }
+        groupBy: {
+          args: Prisma.MonthlyReportProjectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthlyReportProjectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MonthlyReportProjectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthlyReportProjectionCountAggregateOutputType> | number
+        }
+      }
+    }
+    CategorySpendProjection: {
+      payload: Prisma.$CategorySpendProjectionPayload<ExtArgs>
+      fields: Prisma.CategorySpendProjectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CategorySpendProjectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CategorySpendProjectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload>
+        }
+        findFirst: {
+          args: Prisma.CategorySpendProjectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CategorySpendProjectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload>
+        }
+        findMany: {
+          args: Prisma.CategorySpendProjectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload>[]
+        }
+        create: {
+          args: Prisma.CategorySpendProjectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload>
+        }
+        createMany: {
+          args: Prisma.CategorySpendProjectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CategorySpendProjectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload>[]
+        }
+        delete: {
+          args: Prisma.CategorySpendProjectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload>
+        }
+        update: {
+          args: Prisma.CategorySpendProjectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.CategorySpendProjectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CategorySpendProjectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CategorySpendProjectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.CategorySpendProjectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategorySpendProjectionPayload>
+        }
+        aggregate: {
+          args: Prisma.CategorySpendProjectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCategorySpendProjection>
+        }
+        groupBy: {
+          args: Prisma.CategorySpendProjectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategorySpendProjectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CategorySpendProjectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategorySpendProjectionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -700,6 +850,33 @@ export const TransactionScalarFieldEnum = {
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const MonthlyReportProjectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  year: 'year',
+  month: 'month',
+  incomeTotal: 'incomeTotal',
+  expenseTotal: 'expenseTotal',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MonthlyReportProjectionScalarFieldEnum = (typeof MonthlyReportProjectionScalarFieldEnum)[keyof typeof MonthlyReportProjectionScalarFieldEnum]
+
+
+export const CategorySpendProjectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  categoryId: 'categoryId',
+  categoryName: 'categoryName',
+  year: 'year',
+  month: 'month',
+  total: 'total',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategorySpendProjectionScalarFieldEnum = (typeof CategorySpendProjectionScalarFieldEnum)[keyof typeof CategorySpendProjectionScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -815,6 +992,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -913,6 +1104,8 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   category?: Prisma.CategoryOmit
   transaction?: Prisma.TransactionOmit
+  monthlyReportProjection?: Prisma.MonthlyReportProjectionOmit
+  categorySpendProjection?: Prisma.CategorySpendProjectionOmit
 }
 
 /* Types for Logging */

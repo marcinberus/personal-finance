@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigModule } from '@nestjs/config';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaModule, PrismaService } from '@app/prisma';
-import { TransactionsModule } from '../../../../src/modules/transactions/transactions.module';
 import { TransactionsService } from '../../../../src/modules/transactions/transactions.service';
+import { LedgerEventPublisher } from '../../../../src/modules/messaging/ledger-event-publisher.service';
 import { CategoryType, TransactionType } from '@app/prisma/generated/enums';
 import { cleanDatabase } from '../database';
 
@@ -16,10 +15,16 @@ describe('TransactionsService (integration)', () => {
 
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
-        PrismaModule,
-        TransactionsModule,
+      imports: [PrismaModule],
+      providers: [
+        TransactionsService,
+        {
+          provide: LedgerEventPublisher,
+          useValue: {
+            publishTransactionCreated: jest.fn().mockResolvedValue(undefined),
+            publishTransactionDeleted: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compile();
 

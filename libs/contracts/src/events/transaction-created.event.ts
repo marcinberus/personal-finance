@@ -6,6 +6,7 @@ export interface TransactionCreatedPayload {
   transactionId: string;
   userId: string;
   categoryId: string;
+  categoryName: string;
   /** String representation of the Decimal amount, e.g. "1000.00". */
   amount: string;
   type: TransactionType;
