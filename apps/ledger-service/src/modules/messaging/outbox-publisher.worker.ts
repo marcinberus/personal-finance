@@ -97,7 +97,12 @@ export class OutboxPublisherWorker implements OnModuleInit, OnModuleDestroy {
           });
         } catch (error) {
           this.logger.error(
-            `Failed to publish outbox message ${message.id} (${message.eventType})`,
+            JSON.stringify({
+              message: 'outbox.publish.failed',
+              outboxMessageId: message.id,
+              eventType: message.eventType,
+              correlationId: this.extractCorrelationId(message.payload),
+            }),
             error instanceof Error ? error.stack : undefined,
           );
 
@@ -107,5 +112,18 @@ export class OutboxPublisherWorker implements OnModuleInit, OnModuleDestroy {
     } finally {
       this.isRunning = false;
     }
+  }
+
+  private extractCorrelationId(payload: unknown): string | undefined {
+    if (!payload || typeof payload !== 'object') {
+      return undefined;
+    }
+
+    const maybeCorrelationId = (payload as { correlationId?: unknown })
+      .correlationId;
+
+    return typeof maybeCorrelationId === 'string'
+      ? maybeCorrelationId
+      : undefined;
   }
 }

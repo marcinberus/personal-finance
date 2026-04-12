@@ -3,3 +3,8 @@ export type { AuthenticatedUser } from './decorators/current-user.decorator';
 export { JwtGuard } from './guards/jwt.guard';
 export { JwtAuthModule } from './auth/jwt-auth.module';
 export type { JwtAuthModuleOptions } from './auth/jwt-auth.module';
+export { CORRELATION_ID_HEADER } from './correlation/correlation-id.constants';
+export { CorrelationIdModule } from './correlation/correlation-id.module';
+export { CorrelationIdService } from './correlation/correlation-id.service';
+export { createCorrelationIdMiddleware } from './correlation/correlation-id.middleware';
+export { CorrelationLoggingInterceptor } from './correlation/correlation-logging.interceptor';
