@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { LEDGER_EVENTS_QUEUE } from '@app/contracts';
 import {
@@ -20,6 +21,16 @@ async function bootstrap(): Promise<void> {
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  const config = new DocumentBuilder()
+    .setTitle('Reporting Service API')
+    .setDescription('Reporting and analytics')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('swagger', app, document);
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
