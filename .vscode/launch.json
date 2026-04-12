@@ -4,9 +4,19 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Nest: debug",
+      "name": "Ledger",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:dev"],
+      "runtimeArgs": ["run", "start:ledger:dev"],
+      "console": "integratedTerminal",
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Reporting",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:reporting:dev"],
       "console": "integratedTerminal",
       "restart": true,
       "skipFiles": ["<node_internals>/**"]

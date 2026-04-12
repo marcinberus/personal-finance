@@ -13,7 +13,7 @@ export class CreateCategoryDto {
   name: string;
 
   @ApiProperty({
-    enum: CategoryType
+    enum: CategoryType,
   })
   @IsEnum(CategoryType)
   type: CategoryType;

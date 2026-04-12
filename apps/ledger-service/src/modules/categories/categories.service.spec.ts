@@ -4,9 +4,9 @@ import { CorrelationIdService } from '@app/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CategoryType } from '../../prisma/generated/enums';
 import { CategoriesService } from './categories.service';
-import { LedgerEventPublisher } from '../messaging/ledger-event-publisher.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ListCategoriesQueryDto } from './dto/list-categories-query.dto';
+import { CATEGORY_CREATED } from '@app/contracts';
 
 const mockCategory = {
   id: 'category-id-1',
@@ -17,15 +17,15 @@ const mockCategory = {
 };
 
 const mockPrismaService = {
+  $transaction: jest.fn(),
   category: {
     findFirst: jest.fn(),
     create: jest.fn(),
     findMany: jest.fn(),
   },
-};
-
-const mockPublisher = {
-  publishCategoryCreated: jest.fn(),
+  outboxMessage: {
+    create: jest.fn(),
+  },
 };
 
 const mockCorrelationIdService = {
@@ -40,7 +40,6 @@ describe('CategoriesService', () => {
       providers: [
         CategoriesService,
         { provide: PrismaService, useValue: mockPrismaService },
-        { provide: LedgerEventPublisher, useValue: mockPublisher },
         {
           provide: CorrelationIdService,
           useValue: mockCorrelationIdService,
@@ -51,8 +50,11 @@ describe('CategoriesService', () => {
     service = module.get<CategoriesService>(CategoriesService);
 
     jest.clearAllMocks();
-    mockPublisher.publishCategoryCreated.mockResolvedValue(undefined);
     mockCorrelationIdService.getCorrelationId.mockReturnValue('corr-test-1');
+    mockPrismaService.$transaction.mockImplementation(
+      (callback: (tx: typeof mockPrismaService) => unknown) =>
+        Promise.resolve(callback(mockPrismaService)),
+    );
   });
 
   describe('create', () => {
@@ -74,14 +76,17 @@ describe('CategoriesService', () => {
       expect(mockPrismaService.category.create).toHaveBeenCalledWith({
         data: { userId, name: dto.name.trim(), type: dto.type },
       });
-      expect(mockPublisher.publishCategoryCreated).toHaveBeenCalledWith(
-        {
-          categoryId: mockCategory.id,
-          userId: mockCategory.userId,
-          name: mockCategory.name,
-          type: mockCategory.type,
-          createdAt: mockCategory.createdAt.toISOString(),
-        },
+      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+      const createOutboxCallArg = mockPrismaService.outboxMessage.create.mock
+        .calls[0]?.[0] as unknown as {
+        data: {
+          eventType: string;
+          payload: { correlationId?: string };
+        };
+      };
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+      expect(createOutboxCallArg.data.eventType).toBe(CATEGORY_CREATED);
+      expect(createOutboxCallArg.data.payload.correlationId).toBe(
         'corr-test-1',
       );
       expect(result).toEqual(mockCategory);
@@ -115,6 +120,7 @@ describe('CategoriesService', () => {
         'Category with this name already exists',
       );
       expect(mockPrismaService.category.create).not.toHaveBeenCalled();
+      expect(mockPrismaService.outboxMessage.create).not.toHaveBeenCalled();
     });
 
     it('should allow duplicate names for different types', async () => {
