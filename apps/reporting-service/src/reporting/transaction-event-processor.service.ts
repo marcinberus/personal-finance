@@ -6,36 +6,27 @@ import {
   TransactionDeletedEvent,
 } from '@app/contracts';
 import {
-  ProjectionEventContext,
+  ProjectionDbClient,
   ReportingProjectionService,
 } from './reporting-projection.service';
-
-function buildContext(
-  eventName: string,
-  event: TransactionCreatedEvent | TransactionDeletedEvent,
-): ProjectionEventContext {
-  return {
-    eventName,
-    eventId: event.eventId,
-    occurredAt: event.occurredAt,
-    correlationId: event.correlationId,
-  };
-}
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TransactionEventProcessorService {
   private readonly logger = new Logger(TransactionEventProcessorService.name);
 
-  constructor(private readonly projection: ReportingProjectionService) {}
+  constructor(
+    private readonly projection: ReportingProjectionService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   async handleTransactionCreated(
     event: TransactionCreatedEvent,
   ): Promise<void> {
     this.assertEventEnvelope(TRANSACTION_CREATED, event);
 
-    await this.projection.applyTransactionCreated(
-      event.payload,
-      buildContext(TRANSACTION_CREATED, event),
+    await this.processOnce(TRANSACTION_CREATED, event, async (tx) =>
+      this.projection.applyTransactionCreated(event.payload, tx),
     );
   }
 
@@ -44,10 +35,32 @@ export class TransactionEventProcessorService {
   ): Promise<void> {
     this.assertEventEnvelope(TRANSACTION_DELETED, event);
 
-    await this.projection.applyTransactionDeleted(
-      event.payload,
-      buildContext(TRANSACTION_DELETED, event),
+    await this.processOnce(TRANSACTION_DELETED, event, async (tx) =>
+      this.projection.applyTransactionDeleted(event.payload, tx),
     );
+  }
+
+  private async processOnce(
+    eventName: string,
+    event: TransactionCreatedEvent | TransactionDeletedEvent,
+    applyProjection: (tx: ProjectionDbClient) => Promise<void>,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const insertedRows = await tx.$executeRaw`
+        INSERT INTO "ProjectionInboxEvent" ("eventId", "eventName", "occurredAt", "correlationId")
+        VALUES (${event.eventId}, ${eventName}, ${new Date(event.occurredAt)}, ${event.correlationId ?? null})
+        ON CONFLICT ("eventId", "eventName") DO NOTHING
+      `;
+
+      if (insertedRows === 0) {
+        this.logger.debug(
+          `Duplicate event ignored: ${eventName} (${event.eventId})`,
+        );
+        return;
+      }
+
+      await applyProjection(tx);
+    });
   }
 
   private assertEventEnvelope(

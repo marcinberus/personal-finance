@@ -385,7 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   MonthlyReportProjection: 'MonthlyReportProjection',
-  CategorySpendProjection: 'CategorySpendProjection'
+  CategorySpendProjection: 'CategorySpendProjection',
+  ProjectionInboxEvent: 'ProjectionInboxEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -401,7 +402,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "monthlyReportProjection" | "categorySpendProjection"
+    modelProps: "monthlyReportProjection" | "categorySpendProjection" | "projectionInboxEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +554,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProjectionInboxEvent: {
+      payload: Prisma.$ProjectionInboxEventPayload<ExtArgs>
+      fields: Prisma.ProjectionInboxEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectionInboxEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectionInboxEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectionInboxEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectionInboxEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectionInboxEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectionInboxEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectionInboxEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectionInboxEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectionInboxEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload>
+        }
+        update: {
+          args: Prisma.ProjectionInboxEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectionInboxEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectionInboxEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectionInboxEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectionInboxEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectionInboxEventPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectionInboxEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectionInboxEvent>
+        }
+        groupBy: {
+          args: Prisma.ProjectionInboxEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectionInboxEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectionInboxEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectionInboxEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -619,6 +694,17 @@ export const CategorySpendProjectionScalarFieldEnum = {
 export type CategorySpendProjectionScalarFieldEnum = (typeof CategorySpendProjectionScalarFieldEnum)[keyof typeof CategorySpendProjectionScalarFieldEnum]
 
 
+export const ProjectionInboxEventScalarFieldEnum = {
+  eventId: 'eventId',
+  eventName: 'eventName',
+  occurredAt: 'occurredAt',
+  correlationId: 'correlationId',
+  processedAt: 'processedAt'
+} as const
+
+export type ProjectionInboxEventScalarFieldEnum = (typeof ProjectionInboxEventScalarFieldEnum)[keyof typeof ProjectionInboxEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -633,6 +719,14 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -807,6 +901,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   monthlyReportProjection?: Prisma.MonthlyReportProjectionOmit
   categorySpendProjection?: Prisma.CategorySpendProjectionOmit
+  projectionInboxEvent?: Prisma.ProjectionInboxEventOmit
 }
 
 /* Types for Logging */

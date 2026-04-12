@@ -29,6 +29,17 @@ CREATE TABLE "Transaction" (
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "OutboxMessage" (
+    "id" TEXT NOT NULL,
+    "eventType" TEXT NOT NULL,
+    "payload" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "processedAt" TIMESTAMP(3),
+
+    CONSTRAINT "OutboxMessage_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Category_userId_type_name_key" ON "Category"("userId", "type", "name");
 
@@ -37,6 +48,9 @@ CREATE INDEX "Transaction_userId_transactionDate_idx" ON "Transaction"("userId",
 
 -- CreateIndex
 CREATE INDEX "Transaction_categoryId_idx" ON "Transaction"("categoryId");
+
+-- CreateIndex
+CREATE INDEX "OutboxMessage_processedAt_createdAt_idx" ON "OutboxMessage"("processedAt", "createdAt");
 
 -- AddForeignKey
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

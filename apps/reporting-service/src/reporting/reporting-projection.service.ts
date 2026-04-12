@@ -5,12 +5,10 @@ import {
 } from '@app/contracts';
 import { PrismaService } from '../prisma/prisma.service';
 
-export interface ProjectionEventContext {
-  eventName: string;
-  eventId: string;
-  occurredAt: string;
-  correlationId?: string;
-}
+export type ProjectionDbClient = Pick<
+  PrismaService,
+  'monthlyReportProjection' | 'categorySpendProjection'
+>;
 
 function extractYearMonth(dateStr: string): { year: number; month: number } {
   const [year, month] = dateStr.substring(0, 7).split('-').map(Number);
@@ -23,15 +21,13 @@ export class ReportingProjectionService {
 
   async applyTransactionCreated(
     payload: TransactionCreatedPayload,
-    context?: ProjectionEventContext,
+    db: ProjectionDbClient = this.prisma,
   ): Promise<void> {
-    this.keepContextHook(context);
-
     const { year, month } = extractYearMonth(payload.transactionDate);
     const amount = payload.amount;
     const isIncome = payload.type === 'income';
 
-    await this.prisma.monthlyReportProjection.upsert({
+    await db.monthlyReportProjection.upsert({
       where: { userId_year_month: { userId: payload.userId, year, month } },
       create: {
         userId: payload.userId,
@@ -46,7 +42,7 @@ export class ReportingProjectionService {
     });
 
     if (!isIncome) {
-      await this.prisma.categorySpendProjection.upsert({
+      await db.categorySpendProjection.upsert({
         where: {
           userId_categoryId_year_month: {
             userId: payload.userId,
@@ -73,15 +69,13 @@ export class ReportingProjectionService {
 
   async applyTransactionDeleted(
     payload: TransactionDeletedPayload,
-    context?: ProjectionEventContext,
+    db: ProjectionDbClient = this.prisma,
   ): Promise<void> {
-    this.keepContextHook(context);
-
     const { year, month } = extractYearMonth(payload.transactionDate);
     const amount = payload.amount;
     const isIncome = payload.type === 'income';
 
-    await this.prisma.monthlyReportProjection.updateMany({
+    await db.monthlyReportProjection.updateMany({
       where: { userId: payload.userId, year, month },
       data: isIncome
         ? { incomeTotal: { decrement: amount } }
@@ -89,7 +83,7 @@ export class ReportingProjectionService {
     });
 
     if (!isIncome) {
-      await this.prisma.categorySpendProjection.updateMany({
+      await db.categorySpendProjection.updateMany({
         where: {
           userId: payload.userId,
           categoryId: payload.categoryId,
@@ -98,13 +92,6 @@ export class ReportingProjectionService {
         },
         data: { total: { decrement: amount } },
       });
-    }
-  }
-
-  // Reserved hook: this keeps event metadata in the application boundary for future dedupe logic.
-  private keepContextHook(context?: ProjectionEventContext): void {
-    if (!context) {
-      return;
     }
   }
 }

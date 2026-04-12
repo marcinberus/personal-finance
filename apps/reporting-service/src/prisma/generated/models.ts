@@ -10,4 +10,5 @@
  */
 export type * from './models/MonthlyReportProjection.js'
 export type * from './models/CategorySpendProjection.js'
+export type * from './models/ProjectionInboxEvent.js'
 export type * from './commonInputTypes.js'
