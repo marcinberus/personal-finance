@@ -52,7 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   MonthlyReportProjection: 'MonthlyReportProjection',
-  CategorySpendProjection: 'CategorySpendProjection'
+  CategorySpendProjection: 'CategorySpendProjection',
+  ProjectionInboxEvent: 'ProjectionInboxEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -98,6 +99,17 @@ export const CategorySpendProjectionScalarFieldEnum = {
 export type CategorySpendProjectionScalarFieldEnum = (typeof CategorySpendProjectionScalarFieldEnum)[keyof typeof CategorySpendProjectionScalarFieldEnum]
 
 
+export const ProjectionInboxEventScalarFieldEnum = {
+  eventId: 'eventId',
+  eventName: 'eventName',
+  occurredAt: 'occurredAt',
+  correlationId: 'correlationId',
+  processedAt: 'processedAt'
+} as const
+
+export type ProjectionInboxEventScalarFieldEnum = (typeof ProjectionInboxEventScalarFieldEnum)[keyof typeof ProjectionInboxEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -112,4 +124,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

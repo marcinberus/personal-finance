@@ -25,14 +25,28 @@ CREATE TABLE "CategorySpendProjection" (
     CONSTRAINT "CategorySpendProjection_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "MonthlyReportProjection_userId_year_month_key" ON "MonthlyReportProjection"("userId", "year", "month");
+-- CreateTable
+CREATE TABLE "ProjectionInboxEvent" (
+    "eventId" TEXT NOT NULL,
+    "eventName" TEXT NOT NULL,
+    "occurredAt" TIMESTAMP(3) NOT NULL,
+    "correlationId" TEXT,
+    "processedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ProjectionInboxEvent_pkey" PRIMARY KEY ("eventId","eventName")
+);
 
 -- CreateIndex
 CREATE INDEX "MonthlyReportProjection_userId_idx" ON "MonthlyReportProjection"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "CategorySpendProjection_userId_categoryId_year_month_key" ON "CategorySpendProjection"("userId", "categoryId", "year", "month");
+CREATE UNIQUE INDEX "MonthlyReportProjection_userId_year_month_key" ON "MonthlyReportProjection"("userId", "year", "month");
 
 -- CreateIndex
 CREATE INDEX "CategorySpendProjection_userId_year_month_idx" ON "CategorySpendProjection"("userId", "year", "month");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CategorySpendProjection_userId_categoryId_year_month_key" ON "CategorySpendProjection"("userId", "categoryId", "year", "month");
+
+-- CreateIndex
+CREATE INDEX "ProjectionInboxEvent_processedAt_idx" ON "ProjectionInboxEvent"("processedAt");

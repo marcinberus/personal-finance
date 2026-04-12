@@ -35,3 +35,14 @@ model CategorySpendProjection {
   @@unique([userId, categoryId, year, month])
   @@index([userId, year, month])
 }
+
+model ProjectionInboxEvent {
+  eventId       String
+  eventName     String
+  occurredAt    DateTime
+  correlationId String?
+  processedAt   DateTime @default(now())
+
+  @@id([eventId, eventName])
+  @@index([processedAt])
+}

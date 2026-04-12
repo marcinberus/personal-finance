@@ -27,3 +27,8 @@ export type MonthlyReportProjection = Prisma.MonthlyReportProjectionModel
  * 
  */
 export type CategorySpendProjection = Prisma.CategorySpendProjectionModel
+/**
+ * Model ProjectionInboxEvent
+ * 
+ */
+export type ProjectionInboxEvent = Prisma.ProjectionInboxEventModel

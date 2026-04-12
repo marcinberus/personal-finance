@@ -17,7 +17,7 @@ export class PrismaService
       throw new Error('LEDGER_DATABASE_URL or DATABASE_URL is not set');
     }
 
-    const adapter = new PrismaPg({ connectionString });
+    const adapter = new PrismaPg({ connectionString }, { schema: 'ledger' });
 
     super({ adapter });
   }

@@ -16,7 +16,10 @@ module.exports = async function globalSetup() {
 
   global.__PG_CONTAINER__ = container;
 
-  const connectionString = container.getConnectionUri();
+  const connectionUrl = new URL(container.getConnectionUri());
+  connectionUrl.searchParams.set('schema', 'ledger');
+  connectionUrl.searchParams.set('options', '-c search_path=ledger');
+  const connectionString = connectionUrl.toString();
   console.log(`[Integration] Container started at: ${connectionString}`);
 
   writeFileSync(CONFIG_FILE, JSON.stringify({ connectionString }));

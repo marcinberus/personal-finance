@@ -17,7 +17,10 @@ module.exports = async function globalSetup() {
   // Store on global so globalTeardown (same process) can stop it
   global.__PG_CONTAINER__ = container;
 
-  const connectionString = container.getConnectionUri();
+  const connectionUrl = new URL(container.getConnectionUri());
+  connectionUrl.searchParams.set('schema', 'identity');
+  connectionUrl.searchParams.set('options', '-c search_path=identity');
+  const connectionString = connectionUrl.toString();
   console.log(`[Integration] Container started at: ${connectionString}`);
 
   // Write connection string to a file so Jest worker processes can read it

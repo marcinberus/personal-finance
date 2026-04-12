@@ -1,1 +1,1 @@
-{"connectionString":"postgres://test:test@localhost:32800/integration_test_db"}
+{"connectionString":"postgres://test:test@localhost:32821/integration_test_db?schema=reporting&options=-c+search_path%3Dreporting"}
