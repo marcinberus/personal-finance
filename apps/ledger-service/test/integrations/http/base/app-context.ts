@@ -4,8 +4,13 @@ import { App } from 'supertest/types';
 import { of } from 'rxjs';
 import { AppModule } from '../../../../src/app.module';
 import { LEDGER_RMQ_CLIENT } from '../../../../src/modules/messaging/messaging.constants';
+import { IdentityClientService } from '../../../../src/modules/identity/identity-client.service';
 import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { MockPrismaService } from './mock-prisma';
+
+export const TEST_IDENTITY_CLIENT = {
+  getUserById: jest.fn(),
+};
 
 export class AppTestContext {
   app: INestApplication<App>;
@@ -23,6 +28,8 @@ export class AppTestContext {
       .useValue({
         emit: () => of(undefined),
       })
+      .overrideProvider(IdentityClientService)
+      .useValue(TEST_IDENTITY_CLIENT)
       .compile();
 
     this.app = moduleFixture.createNestApplication();

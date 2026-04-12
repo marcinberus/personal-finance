@@ -11,6 +11,8 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser, JwtGuard } from '@app/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { TransactionSummaryDto } from './dto/transaction-summary.dto';
+import { TransactionSummaryService } from './transaction-summary.service';
 import {
   TransactionWithCategory,
   TransactionsService,
@@ -22,7 +24,10 @@ import { ListTransactionsQueryDto } from './dto/list-transactions-query.dto';
 @UseGuards(JwtGuard)
 @Controller('transactions')
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
+  constructor(
+    private readonly transactionsService: TransactionsService,
+    private readonly transactionSummaryService: TransactionSummaryService,
+  ) {}
 
   @Post()
   create(
@@ -30,6 +35,13 @@ export class TransactionsController {
     @Body() dto: CreateTransactionDto,
   ): Promise<TransactionWithCategory> {
     return this.transactionsService.create(user.id, dto);
+  }
+
+  @Get('summary')
+  getSummary(
+    @CurrentUser() user: { id: string; email: string },
+  ): Promise<TransactionSummaryDto> {
+    return this.transactionSummaryService.getSummary(user.id);
   }
 
   @Get()
