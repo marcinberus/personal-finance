@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionType } from '../../prisma/generated/enums';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
+import { TransactionSummaryService } from './transaction-summary.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ListTransactionsQueryDto } from './dto/list-transactions-query.dto';
 
@@ -30,6 +31,10 @@ const mockTransactionsService = {
   remove: jest.fn(),
 };
 
+const mockTransactionSummaryService = {
+  getSummary: jest.fn(),
+};
+
 describe('TransactionsController', () => {
   let controller: TransactionsController;
 
@@ -38,6 +43,10 @@ describe('TransactionsController', () => {
       controllers: [TransactionsController],
       providers: [
         { provide: TransactionsService, useValue: mockTransactionsService },
+        {
+          provide: TransactionSummaryService,
+          useValue: mockTransactionSummaryService,
+        },
       ],
     }).compile();
 
