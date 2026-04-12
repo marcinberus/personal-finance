@@ -1,4 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { CorrelationIdService } from '@app/common';
 import { Category } from '../../prisma/generated/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -10,6 +11,7 @@ export class CategoriesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly publisher: LedgerEventPublisher,
+    private readonly correlationIdService: CorrelationIdService,
   ) {}
 
   async create(userId: string, dto: CreateCategoryDto): Promise<Category> {
@@ -35,13 +37,16 @@ export class CategoriesService {
       },
     });
 
-    await this.publisher.publishCategoryCreated({
-      categoryId: category.id,
-      userId: category.userId,
-      name: category.name,
-      type: category.type as 'income' | 'expense',
-      createdAt: category.createdAt.toISOString(),
-    });
+    await this.publisher.publishCategoryCreated(
+      {
+        categoryId: category.id,
+        userId: category.userId,
+        name: category.name,
+        type: category.type as 'income' | 'expense',
+        createdAt: category.createdAt.toISOString(),
+      },
+      this.correlationIdService.getCorrelationId(),
+    );
 
     return category;
   }

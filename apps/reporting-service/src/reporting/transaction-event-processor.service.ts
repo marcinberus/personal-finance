@@ -54,7 +54,12 @@ export class TransactionEventProcessorService {
 
       if (insertedRows === 0) {
         this.logger.debug(
-          `Duplicate event ignored: ${eventName} (${event.eventId})`,
+          JSON.stringify({
+            message: 'event.duplicate.ignored',
+            eventName,
+            eventId: event.eventId,
+            correlationId: event.correlationId,
+          }),
         );
         return;
       }
@@ -68,7 +73,14 @@ export class TransactionEventProcessorService {
     event: TransactionCreatedEvent | TransactionDeletedEvent,
   ): void {
     if (!event?.eventId || !event?.occurredAt || !event?.payload) {
-      this.logger.error(`Invalid ${eventName} event envelope received`);
+      this.logger.error(
+        JSON.stringify({
+          message: 'event.envelope.invalid',
+          eventName,
+          eventId: event?.eventId,
+          correlationId: event?.correlationId,
+        }),
+      );
       throw new Error(`Invalid ${eventName} event envelope`);
     }
   }

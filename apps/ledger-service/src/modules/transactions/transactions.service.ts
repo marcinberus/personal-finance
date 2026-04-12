@@ -11,6 +11,7 @@ import {
   type TransactionCreatedPayload,
   type TransactionDeletedPayload,
 } from '@app/contracts';
+import { CorrelationIdService } from '@app/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -22,16 +23,21 @@ export type TransactionWithCategory = Transaction & {
 
 @Injectable()
 export class TransactionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly correlationIdService: CorrelationIdService,
+  ) {}
 
   private createOutboxEnvelope(
     payload: TransactionCreatedPayload | TransactionDeletedPayload,
+    correlationId?: string,
   ): Prisma.InputJsonObject {
     const envelope: EventEnvelope & {
       payload: TransactionCreatedPayload | TransactionDeletedPayload;
     } = {
       eventId: randomUUID(),
       occurredAt: new Date().toISOString(),
+      correlationId,
       payload,
     };
 
@@ -42,6 +48,8 @@ export class TransactionsService {
     userId: string,
     dto: CreateTransactionDto,
   ): Promise<TransactionWithCategory> {
+    const correlationId = this.correlationIdService.getCorrelationId();
+
     return this.prisma.$transaction(async (tx) => {
       const category = await tx.category.findFirst({
         where: {
@@ -97,7 +105,7 @@ export class TransactionsService {
       await tx.outboxMessage.create({
         data: {
           eventType: TRANSACTION_CREATED,
-          payload: this.createOutboxEnvelope(payload),
+          payload: this.createOutboxEnvelope(payload, correlationId),
         },
       });
 
@@ -165,6 +173,8 @@ export class TransactionsService {
   }
 
   async remove(userId: string, id: string): Promise<{ success: boolean }> {
+    const correlationId = this.correlationIdService.getCorrelationId();
+
     return this.prisma.$transaction(async (tx) => {
       const transaction = await tx.transaction.findFirst({
         where: {
@@ -204,7 +214,7 @@ export class TransactionsService {
       await tx.outboxMessage.create({
         data: {
           eventType: TRANSACTION_DELETED,
-          payload: this.createOutboxEnvelope(payload),
+          payload: this.createOutboxEnvelope(payload, correlationId),
         },
       });
 

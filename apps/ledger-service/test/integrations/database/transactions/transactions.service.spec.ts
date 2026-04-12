@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { CorrelationIdModule } from '@app/common';
 import { PrismaModule } from '../../../../src/prisma/prisma.module';
 import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { TransactionsService } from '../../../../src/modules/transactions/transactions.service';
@@ -24,6 +25,7 @@ describe('TransactionsService (integration)', () => {
       imports: [
         ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
         PrismaModule,
+        CorrelationIdModule,
       ],
       providers: [TransactionsService],
     }).compile();

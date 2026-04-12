@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { JwtAuthModule } from '@app/common';
+import { CorrelationIdModule, JwtAuthModule } from '@app/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
@@ -10,6 +10,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    CorrelationIdModule,
     PrismaModule,
     JwtAuthModule.register({ enableTokenSigning: true }),
     CategoriesModule,

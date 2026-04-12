@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
 import { ConflictException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { CorrelationIdModule } from '@app/common';
 import { PrismaModule } from '../../../../src/prisma/prisma.module';
 import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { CategoriesService } from '../../../../src/modules/categories/categories.service';
@@ -20,6 +21,7 @@ describe('CategoriesService (integration)', () => {
       imports: [
         ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
         PrismaModule,
+        CorrelationIdModule,
       ],
       providers: [
         CategoriesService,

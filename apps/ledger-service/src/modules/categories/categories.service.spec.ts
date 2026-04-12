@@ -1,5 +1,6 @@
 import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CorrelationIdService } from '@app/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CategoryType } from '../../prisma/generated/enums';
 import { CategoriesService } from './categories.service';
@@ -27,6 +28,10 @@ const mockPublisher = {
   publishCategoryCreated: jest.fn(),
 };
 
+const mockCorrelationIdService = {
+  getCorrelationId: jest.fn(),
+};
+
 describe('CategoriesService', () => {
   let service: CategoriesService;
 
@@ -36,6 +41,10 @@ describe('CategoriesService', () => {
         CategoriesService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: LedgerEventPublisher, useValue: mockPublisher },
+        {
+          provide: CorrelationIdService,
+          useValue: mockCorrelationIdService,
+        },
       ],
     }).compile();
 
@@ -43,6 +52,7 @@ describe('CategoriesService', () => {
 
     jest.clearAllMocks();
     mockPublisher.publishCategoryCreated.mockResolvedValue(undefined);
+    mockCorrelationIdService.getCorrelationId.mockReturnValue('corr-test-1');
   });
 
   describe('create', () => {
@@ -64,6 +74,16 @@ describe('CategoriesService', () => {
       expect(mockPrismaService.category.create).toHaveBeenCalledWith({
         data: { userId, name: dto.name.trim(), type: dto.type },
       });
+      expect(mockPublisher.publishCategoryCreated).toHaveBeenCalledWith(
+        {
+          categoryId: mockCategory.id,
+          userId: mockCategory.userId,
+          name: mockCategory.name,
+          type: mockCategory.type,
+          createdAt: mockCategory.createdAt.toISOString(),
+        },
+        'corr-test-1',
+      );
       expect(result).toEqual(mockCategory);
     });
 

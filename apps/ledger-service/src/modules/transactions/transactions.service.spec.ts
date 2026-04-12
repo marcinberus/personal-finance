@@ -1,5 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CorrelationIdService } from '@app/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TransactionType } from '../../prisma/generated/enums';
 import { TransactionsService } from './transactions.service';
@@ -47,6 +48,10 @@ const mockPrismaService = {
   },
 };
 
+const mockCorrelationIdService = {
+  getCorrelationId: jest.fn(),
+};
+
 describe('TransactionsService', () => {
   let service: TransactionsService;
 
@@ -55,12 +60,17 @@ describe('TransactionsService', () => {
       providers: [
         TransactionsService,
         { provide: PrismaService, useValue: mockPrismaService },
+        {
+          provide: CorrelationIdService,
+          useValue: mockCorrelationIdService,
+        },
       ],
     }).compile();
 
     service = module.get<TransactionsService>(TransactionsService);
 
     jest.clearAllMocks();
+    mockCorrelationIdService.getCorrelationId.mockReturnValue('corr-test-1');
     mockPrismaService.$transaction.mockImplementation(
       (callback: (tx: typeof mockPrismaService) => unknown) =>
         Promise.resolve(callback(mockPrismaService)),
@@ -102,10 +112,16 @@ describe('TransactionsService', () => {
       /* eslint-disable @typescript-eslint/no-unsafe-member-access */
       const createOutboxCallArg = mockPrismaService.outboxMessage.create.mock
         .calls[0]?.[0] as unknown as {
-        data: { eventType: string };
+        data: {
+          eventType: string;
+          payload: { correlationId?: string };
+        };
       };
       /* eslint-enable @typescript-eslint/no-unsafe-member-access */
       expect(createOutboxCallArg.data.eventType).toBe(TRANSACTION_CREATED);
+      expect(createOutboxCallArg.data.payload.correlationId).toBe(
+        'corr-test-1',
+      );
       expect(result).toEqual(mockTransaction);
     });
 
@@ -375,10 +391,16 @@ describe('TransactionsService', () => {
       /* eslint-disable @typescript-eslint/no-unsafe-member-access */
       const deleteOutboxCallArg = mockPrismaService.outboxMessage.create.mock
         .calls[0]?.[0] as unknown as {
-        data: { eventType: string };
+        data: {
+          eventType: string;
+          payload: { correlationId?: string };
+        };
       };
       /* eslint-enable @typescript-eslint/no-unsafe-member-access */
       expect(deleteOutboxCallArg.data.eventType).toBe(TRANSACTION_DELETED);
+      expect(deleteOutboxCallArg.data.payload.correlationId).toBe(
+        'corr-test-1',
+      );
       expect(result).toEqual({ success: true });
     });
 

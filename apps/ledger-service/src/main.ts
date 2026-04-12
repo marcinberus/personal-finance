@@ -1,10 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  CorrelationIdService,
+  CorrelationLoggingInterceptor,
+  createCorrelationIdMiddleware,
+} from '@app/common';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+  const correlationIdService = app.get(CorrelationIdService);
+
+  app.use(createCorrelationIdMiddleware(correlationIdService));
+  app.useGlobalInterceptors(
+    new CorrelationLoggingInterceptor(correlationIdService),
+  );
 
   app.setGlobalPrefix('api');
 
