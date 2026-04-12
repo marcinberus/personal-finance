@@ -4,6 +4,7 @@ import { CorrelationIdModule, JwtAuthModule } from '@app/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { MessagingModule } from './modules/messaging/messaging.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
     JwtAuthModule.register({ enableTokenSigning: true }),
     CategoriesModule,
     TransactionsModule,
+    MessagingModule,
   ],
 })
 export class AppModule {}

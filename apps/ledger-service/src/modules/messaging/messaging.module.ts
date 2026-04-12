@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from '../../prisma/prisma.module';
-import { LedgerEventPublisher } from './ledger-event-publisher.service';
 import { OutboxPublisherWorker } from './outbox-publisher.worker';
 import { LEDGER_EVENTS_QUEUE, LEDGER_RMQ_CLIENT } from './messaging.constants';
 
@@ -25,7 +24,6 @@ import { LEDGER_EVENTS_QUEUE, LEDGER_RMQ_CLIENT } from './messaging.constants';
       },
     ]),
   ],
-  providers: [LedgerEventPublisher, OutboxPublisherWorker],
-  exports: [LedgerEventPublisher],
+  providers: [OutboxPublisherWorker],
 })
 export class MessagingModule {}

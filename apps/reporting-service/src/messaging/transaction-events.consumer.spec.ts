@@ -5,6 +5,7 @@ import {
   type TransactionCreatedEvent,
   type TransactionDeletedEvent,
 } from '@app/contracts';
+import { RmqContext } from '@nestjs/microservices';
 import { TransactionEventsConsumer } from './transaction-events.consumer';
 import { TransactionEventProcessorService } from '../reporting/transaction-event-processor.service';
 
@@ -20,6 +21,24 @@ const mockCorrelationIdService = {
 
 describe('TransactionEventsConsumer', () => {
   let consumer: TransactionEventsConsumer;
+
+  const createMockRmqContext = (): {
+    context: RmqContext;
+    ack: jest.Mock;
+    nack: jest.Mock;
+    message: object;
+  } => {
+    const ack = jest.fn();
+    const nack = jest.fn();
+    const message = { fields: { deliveryTag: 1 } };
+
+    const context = {
+      getChannelRef: () => ({ ack, nack }),
+      getMessage: () => message,
+    } as unknown as RmqContext;
+
+    return { context, ack, nack, message };
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -54,13 +73,17 @@ describe('TransactionEventsConsumer', () => {
       },
     };
 
-    await consumer.handleTransactionCreated(event);
+    const { context, ack, nack, message } = createMockRmqContext();
+
+    await consumer.handleTransactionCreated(event, context);
 
     expect(mockCorrelationIdService.runWithCorrelationId).toHaveBeenCalledWith(
       'corr-1',
       expect.any(Function),
     );
     expect(mockProcessor.handleTransactionCreated).toHaveBeenCalledWith(event);
+    expect(ack).toHaveBeenCalledWith(message);
+    expect(nack).not.toHaveBeenCalled();
   });
 
   it('should run transaction.deleted processing inside correlation context', async () => {
@@ -80,13 +103,17 @@ describe('TransactionEventsConsumer', () => {
       },
     };
 
-    await consumer.handleTransactionDeleted(event);
+    const { context, ack, nack, message } = createMockRmqContext();
+
+    await consumer.handleTransactionDeleted(event, context);
 
     expect(mockCorrelationIdService.runWithCorrelationId).toHaveBeenCalledWith(
       'corr-2',
       expect.any(Function),
     );
     expect(mockProcessor.handleTransactionDeleted).toHaveBeenCalledWith(event);
+    expect(ack).toHaveBeenCalledWith(message);
+    expect(nack).not.toHaveBeenCalled();
   });
 
   it('should log event metadata with correlation ID', async () => {
@@ -118,7 +145,9 @@ describe('TransactionEventsConsumer', () => {
       },
     };
 
-    await consumer.handleTransactionCreated(event);
+    const { context } = createMockRmqContext();
+
+    await consumer.handleTransactionCreated(event, context);
 
     expect(loggerLogSpy).toHaveBeenCalledWith(
       JSON.stringify({
@@ -160,7 +189,9 @@ describe('TransactionEventsConsumer', () => {
       },
     };
 
-    await consumer.handleTransactionDeleted(event);
+    const { context } = createMockRmqContext();
+
+    await consumer.handleTransactionDeleted(event, context);
 
     expect(loggerLogSpy).toHaveBeenCalledWith(
       JSON.stringify({
@@ -172,5 +203,49 @@ describe('TransactionEventsConsumer', () => {
     );
 
     loggerLogSpy.mockRestore();
+  });
+
+  it('should nack and requeue when transaction.created processing fails', async () => {
+    const event: TransactionCreatedEvent = {
+      eventId: 'evt-fail-1',
+      occurredAt: '2026-04-12T10:00:00.000Z',
+      correlationId: 'corr-fail-1',
+      payload: {
+        transactionId: 'tx-fail-1',
+        userId: 'user-1',
+        categoryId: 'cat-1',
+        categoryName: 'Salary',
+        amount: '1000.00',
+        type: 'income',
+        description: null,
+        transactionDate: '2026-04-12',
+        createdAt: '2026-04-12T10:00:00.000Z',
+      },
+    };
+
+    mockProcessor.handleTransactionCreated.mockRejectedValueOnce(
+      new Error('projection update failed'),
+    );
+
+    const loggerErrorSpy = jest
+      .spyOn(
+        (
+          consumer as unknown as {
+            logger: { error: (message: string, trace?: string) => void };
+          }
+        ).logger,
+        'error',
+      )
+      .mockImplementation(() => undefined);
+
+    const { context, ack, nack, message } = createMockRmqContext();
+
+    await consumer.handleTransactionCreated(event, context);
+
+    expect(ack).not.toHaveBeenCalled();
+    expect(nack).toHaveBeenCalledWith(message, false, true);
+    expect(loggerErrorSpy).toHaveBeenCalled();
+
+    loggerErrorSpy.mockRestore();
   });
 });

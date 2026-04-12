@@ -1,5 +1,5 @@
 import { Controller, Logger } from '@nestjs/common';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { TRANSACTION_CREATED, TRANSACTION_DELETED } from '@app/contracts';
 import { CorrelationIdService } from '@app/common';
 import type {
@@ -7,6 +7,11 @@ import type {
   TransactionDeletedEvent,
 } from '@app/contracts';
 import { TransactionEventProcessorService } from '../reporting/transaction-event-processor.service';
+
+type AcknowledgeableChannel = {
+  ack(message: unknown): void;
+  nack(message: unknown, allUpTo?: boolean, requeue?: boolean): void;
+};
 
 @Controller()
 export class TransactionEventsConsumer {
@@ -20,42 +25,82 @@ export class TransactionEventsConsumer {
   @EventPattern(TRANSACTION_CREATED)
   async handleTransactionCreated(
     @Payload() event: TransactionCreatedEvent,
+    @Ctx() context: RmqContext,
   ): Promise<void> {
-    await this.correlationIdService.runWithCorrelationId(
-      event.correlationId,
-      async () => {
-        this.logger.log(
-          JSON.stringify({
-            message: 'event.received',
-            eventName: TRANSACTION_CREATED,
-            eventId: event.eventId,
-            correlationId: this.correlationIdService.getCorrelationId(),
-          }),
-        );
+    const channel = context.getChannelRef() as AcknowledgeableChannel;
+    const originalMessage: unknown = context.getMessage();
 
-        await this.processor.handleTransactionCreated(event);
-      },
-    );
+    try {
+      await this.correlationIdService.runWithCorrelationId(
+        event.correlationId,
+        async () => {
+          this.logger.log(
+            JSON.stringify({
+              message: 'event.received',
+              eventName: TRANSACTION_CREATED,
+              eventId: event.eventId,
+              correlationId: this.correlationIdService.getCorrelationId(),
+            }),
+          );
+
+          await this.processor.handleTransactionCreated(event);
+        },
+      );
+
+      channel.ack(originalMessage);
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify({
+          message: 'event.processing.failed',
+          eventName: TRANSACTION_CREATED,
+          eventId: event.eventId,
+          correlationId: event.correlationId,
+        }),
+        error instanceof Error ? error.stack : undefined,
+      );
+
+      channel.nack(originalMessage, false, true);
+    }
   }
 
   @EventPattern(TRANSACTION_DELETED)
   async handleTransactionDeleted(
     @Payload() event: TransactionDeletedEvent,
+    @Ctx() context: RmqContext,
   ): Promise<void> {
-    await this.correlationIdService.runWithCorrelationId(
-      event.correlationId,
-      async () => {
-        this.logger.log(
-          JSON.stringify({
-            message: 'event.received',
-            eventName: TRANSACTION_DELETED,
-            eventId: event.eventId,
-            correlationId: this.correlationIdService.getCorrelationId(),
-          }),
-        );
+    const channel = context.getChannelRef() as AcknowledgeableChannel;
+    const originalMessage: unknown = context.getMessage();
 
-        await this.processor.handleTransactionDeleted(event);
-      },
-    );
+    try {
+      await this.correlationIdService.runWithCorrelationId(
+        event.correlationId,
+        async () => {
+          this.logger.log(
+            JSON.stringify({
+              message: 'event.received',
+              eventName: TRANSACTION_DELETED,
+              eventId: event.eventId,
+              correlationId: this.correlationIdService.getCorrelationId(),
+            }),
+          );
+
+          await this.processor.handleTransactionDeleted(event);
+        },
+      );
+
+      channel.ack(originalMessage);
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify({
+          message: 'event.processing.failed',
+          eventName: TRANSACTION_DELETED,
+          eventId: event.eventId,
+          correlationId: event.correlationId,
+        }),
+        error instanceof Error ? error.stack : undefined,
+      );
+
+      channel.nack(originalMessage, false, true);
+    }
   }
 }

@@ -6,7 +6,6 @@ import { CorrelationIdModule } from '@app/common';
 import { PrismaModule } from '../../../../src/prisma/prisma.module';
 import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { CategoriesService } from '../../../../src/modules/categories/categories.service';
-import { LedgerEventPublisher } from '../../../../src/modules/messaging/ledger-event-publisher.service';
 import { CategoryType } from '../../../../src/prisma/generated/enums';
 import { cleanDatabase } from '../database';
 
@@ -23,15 +22,7 @@ describe('CategoriesService (integration)', () => {
         PrismaModule,
         CorrelationIdModule,
       ],
-      providers: [
-        CategoriesService,
-        {
-          provide: LedgerEventPublisher,
-          useValue: {
-            publishCategoryCreated: jest.fn().mockResolvedValue(undefined),
-          },
-        },
-      ],
+      providers: [CategoriesService],
     }).compile();
 
     categoriesService = moduleRef.get(CategoriesService);
