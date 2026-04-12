@@ -8,6 +8,11 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "docker:up": "docker-compose up -d --build",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:infra:up": "docker-compose up -d postgres rabbitmq pgadmin",
+    "docker:infra:down": "docker-compose stop postgres rabbitmq pgadmin",
     "start:identity": "nest start identity-service",
     "start:identity:dev": "nest start identity-service --watch",
     "start:ledger": "nest start ledger-service",

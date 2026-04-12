@@ -47,7 +47,7 @@ export class TransactionEventProcessorService {
   ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       const insertedRows = await tx.$executeRaw`
-        INSERT INTO "ProjectionInboxEvent" ("eventId", "eventName", "occurredAt", "correlationId")
+        INSERT INTO "reporting"."ProjectionInboxEvent" ("eventId", "eventName", "occurredAt", "correlationId")
         VALUES (${event.eventId}, ${eventName}, ${new Date(event.occurredAt)}, ${event.correlationId ?? null})
         ON CONFLICT ("eventId", "eventName") DO NOTHING
       `;
