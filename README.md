@@ -1,10 +1,11 @@
-# Personal Finance Distributed System (NestJS)
+# Personal Finance Distributed System (NestJS + AngularJS)
 
-Distributed personal-finance backend built as a NestJS monorepo with:
+Full-stack personal-finance system with an AngularJS frontend and a distributed NestJS backend.
 
-- `identity-service` (auth + users)
-- `ledger-service` (categories + transactions, source of truth)
-- `reporting-service` (read-model projections + report queries)
+This repository contains:
+
+- AngularJS 1.x SPA frontend (`personal-finance-frontend`) served by nginx in Docker mode
+- Distributed NestJS backend services (`identity-service`, `ledger-service`, `reporting-service`)
 - RabbitMQ (event transport)
 - PostgreSQL + Prisma (per-service schema isolation)
 - Transactional outbox and idempotent consumer patterns
@@ -13,7 +14,7 @@ Distributed personal-finance backend built as a NestJS monorepo with:
 ## Architecture Overview
 
 ```text
-Client
+AngularJS Frontend (http://localhost:8080)
   |
   +--> identity-service (HTTP, JWT issue/validate, users)
   |
@@ -206,7 +207,7 @@ This section describes the main failure modes in the system and the expected beh
 npm install
 ```
 
-### 2) Start full local stack (apps + infrastructure)
+### 2) Start full local stack (apps + infrastructure + frontend)
 
 ```bash
 npm run docker:up
@@ -218,7 +219,7 @@ Services started:
 - RabbitMQ AMQP: `localhost:5672`
 - RabbitMQ UI: `http://localhost:15672` (`rabbit` / `rabbit`)
 - pgAdmin: `http://localhost:5051`
-- AngularJS Frontend: `http://localhost:8080`
+- AngularJS Frontend (nginx): `http://localhost:8080`
 - Identity API: `http://localhost:3000/api`
 - Ledger API: `http://localhost:3001/api`
 - Reporting API: `http://localhost:3002/api`
@@ -295,6 +296,13 @@ npm run start:ledger:dev
 npm run start:reporting:dev
 ```
 
+For frontend in host mode, run a static file server from `personal-finance-frontend` (for example with `npx serve`):
+
+```bash
+cd personal-finance-frontend
+npx serve . -l 8080
+```
+
 Default base URLs:
 
 - Identity: `http://localhost:3000/api`
@@ -305,6 +313,7 @@ Default base URLs:
 ## AngularJS Frontend
 
 AngularJS 1.x frontend is located in `personal-finance-frontend` and served by nginx in Docker mode.
+It is a browser SPA that directly calls all three backend APIs.
 
 Feature screens:
 
@@ -314,13 +323,15 @@ Feature screens:
 - Transactions list/create/delete
 - Reports (monthly and category spend)
 
-The frontend calls each backend service directly:
+Default API targets used by the frontend:
 
 - Identity: `http://localhost:3000/api`
 - Ledger: `http://localhost:3001/api`
 - Reporting: `http://localhost:3002/api`
 
 CORS is enabled in all services with `FRONTEND_ORIGIN` (defaults to `http://localhost:8080`).
+
+If you run the frontend on a different origin/port in host mode, set `FRONTEND_ORIGIN` in each backend service accordingly.
 
 Swagger:
 
