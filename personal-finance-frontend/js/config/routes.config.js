@@ -3,7 +3,10 @@
 
   angular.module('pfApp').config([
     '$routeProvider',
-    function ($routeProvider) {
+    '$locationProvider',
+    function ($routeProvider, $locationProvider) {
+      $locationProvider.hashPrefix('');
+
       $routeProvider
         .when('/login', {
           templateUrl: 'templates/auth/login.page.html',

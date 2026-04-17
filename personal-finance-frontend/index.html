@@ -11,8 +11,8 @@
         href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Space+Grotesk:wght@400;500;700&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="app.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-route.min.js"></script>
+    <script src="vendor/angularjs/angular.min.js"></script>
+    <script src="vendor/angularjs/angular-route.min.js"></script>
     <script src="js/app.module.js"></script>
     <script src="js/config/api.config.js"></script>
     <script src="js/services/auth.service.js"></script>
@@ -31,7 +31,7 @@
     <script src="js/run/auth.run.js"></script>
 </head>
 
-<body ng-controller="AppShellController as app" class="app-body">
+<body ng-controller="AppShellController as app" class="app-body" ng-cloak>
     <div class="ambient-glow ambient-glow-a"></div>
     <div class="ambient-glow ambient-glow-b"></div>
 

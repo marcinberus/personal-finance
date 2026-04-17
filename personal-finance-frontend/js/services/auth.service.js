@@ -44,10 +44,26 @@
         },
         getUser: function () {
           var value = $window.localStorage.getItem(userKey);
-          return value ? JSON.parse(value) : null;
+          if (!value) {
+            return null;
+          }
+
+          try {
+            return JSON.parse(value);
+          } catch (_err) {
+            $window.localStorage.removeItem(userKey);
+            return null;
+          }
         },
         isAuthenticated: function () {
-          return !!$window.localStorage.getItem(tokenKey);
+          var hasToken = !!$window.localStorage.getItem(tokenKey);
+          var hasUser = !!this.getUser();
+
+          if (hasToken && !hasUser) {
+            clearSession();
+          }
+
+          return hasToken && hasUser;
         },
         logout: function () {
           clearSession();

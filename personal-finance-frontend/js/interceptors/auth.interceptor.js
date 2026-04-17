@@ -3,12 +3,15 @@
 
   angular.module('pfApp').factory('AuthInterceptor', [
     '$q',
+    '$window',
     '$rootScope',
-    'AuthSessionService',
-    function ($q, $rootScope, AuthSessionService) {
+    function ($q, $window, $rootScope) {
+      var tokenKey = 'pf_access_token';
+      var userKey = 'pf_user';
+
       return {
         request: function (config) {
-          var token = AuthSessionService.getToken();
+          var token = $window.localStorage.getItem(tokenKey);
           if (token) {
             config.headers = config.headers || {};
             config.headers.Authorization = 'Bearer ' + token;
@@ -22,7 +25,8 @@
             'Request failed';
           $rootScope.$broadcast('api-error', message);
           if (rejection.status === 401) {
-            AuthSessionService.logout();
+            $window.localStorage.removeItem(tokenKey);
+            $window.localStorage.removeItem(userKey);
           }
           return $q.reject(rejection);
         },
