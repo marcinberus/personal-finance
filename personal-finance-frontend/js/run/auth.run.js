@@ -5,7 +5,10 @@
     '$rootScope',
     '$location',
     'AuthSessionService',
-    function ($rootScope, $location, AuthSessionService) {
+    'LocalizationService',
+    function ($rootScope, $location, AuthSessionService, LocalizationService) {
+      LocalizationService.init();
+
       $rootScope.$on('$routeChangeStart', function (_event, next) {
         if (
           next &&

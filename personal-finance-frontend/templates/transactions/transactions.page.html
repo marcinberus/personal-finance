@@ -90,7 +90,7 @@
                         <td>{{ item.type }}</td>
                         <td
                             ng-class="{ 'text-income': item.type === 'income', 'text-expense': item.type === 'expense' }">
-                            {{ item.amount }}</td>
+                            {{ item.amount | localizedCurrency }}</td>
                         <td>{{ item.description || '-' }}</td>
                         <td>
                             <button class="btn danger" type="button" ng-click="vm.remove(item.id)">Delete</button>

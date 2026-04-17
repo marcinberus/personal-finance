@@ -18,9 +18,11 @@
         <div class="spacer-top" ng-if="vm.monthly">
             <p><strong>Year:</strong> {{ vm.monthly.year }}</p>
             <p><strong>Month:</strong> {{ vm.monthly.month || 'all' }}</p>
-            <p><strong>Income:</strong> <span class="text-income">{{ vm.monthly.incomeTotal }}</span></p>
-            <p><strong>Expenses:</strong> <span class="text-expense">{{ vm.monthly.expenseTotal }}</span></p>
-            <p><strong>Balance:</strong> {{ vm.monthly.balance }}</p>
+            <p><strong>Income:</strong> <span class="text-income">{{ vm.monthly.incomeTotal | localizedCurrency
+                    }}</span></p>
+            <p><strong>Expenses:</strong> <span class="text-expense">{{ vm.monthly.expenseTotal | localizedCurrency
+                    }}</span></p>
+            <p><strong>Balance:</strong> {{ vm.monthly.balance | localizedCurrency }}</p>
         </div>
     </article>
 
@@ -51,7 +53,7 @@
                 <tbody>
                     <tr ng-repeat="item in vm.categorySpend track by item.categoryId">
                         <td>{{ item.categoryName }}</td>
-                        <td>{{ item.total }}</td>
+                        <td>{{ item.total | localizedCurrency }}</td>
                     </tr>
                     <tr ng-if="!vm.categorySpend.length">
                         <td colspan="2" class="muted">No category spend records for selected period.</td>
