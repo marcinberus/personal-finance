@@ -1,0 +1,21 @@
+<main class="shell">
+  <header class="shell-header">
+    <div>
+      <p class="eyebrow">Incremental Migration</p>
+      <h1>{{ title }}</h1>
+    </div>
+    <p class="note">Migration init</p>
+  </header>
+
+  <nav class="tabs" aria-label="Feature routes">
+    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/categories" routerLinkActive="active">Categories</a>
+    <a routerLink="/transactions" routerLinkActive="active">Transactions</a>
+    <a routerLink="/reports" routerLinkActive="active">Reports</a>
+    <a routerLink="/login" routerLinkActive="active">Login</a>
+  </nav>
+
+  <section class="view-wrap">
+    <router-outlet></router-outlet>
+  </section>
+</main>

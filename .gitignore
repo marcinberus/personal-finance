@@ -56,3 +56,24 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /generated/prisma
+
+# Angular frontend (personal-finance-frontend-ng)
+/personal-finance-frontend-ng/dist
+/personal-finance-frontend-ng/tmp
+/personal-finance-frontend-ng/out-tsc
+/personal-finance-frontend-ng/bazel-out
+/personal-finance-frontend-ng/node_modules
+/personal-finance-frontend-ng/.angular/cache
+/personal-finance-frontend-ng/.sass-cache
+/personal-finance-frontend-ng/connect.lock
+/personal-finance-frontend-ng/coverage
+/personal-finance-frontend-ng/libpeerconnection.log
+/personal-finance-frontend-ng/testem.log
+/personal-finance-frontend-ng/typings
+/personal-finance-frontend-ng/__screenshots__/
+/personal-finance-frontend-ng/.history/*
+/personal-finance-frontend-ng/.vscode/*
+!/personal-finance-frontend-ng/.vscode/settings.json
+!/personal-finance-frontend-ng/.vscode/tasks.json
+!/personal-finance-frontend-ng/.vscode/launch.json
+!/personal-finance-frontend-ng/.vscode/extensions.json
