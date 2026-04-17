@@ -11,6 +11,18 @@ import { AppModule } from './app.module';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const correlationIdService = app.get(CorrelationIdService);
+  const allowedOrigins = (
+    process.env.FRONTEND_ORIGIN ?? 'http://localhost:8080'
+  )
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  app.enableCors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-correlation-id'],
+  });
 
   app.use(createCorrelationIdMiddleware(correlationIdService));
   app.useGlobalInterceptors(

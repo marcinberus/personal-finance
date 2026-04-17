@@ -1,0 +1,47 @@
+<section class="grid">
+    <article class="panel">
+        <h2>Overview</h2>
+        <p class="muted">Snapshot from ledger summary and reporting monthly projection.</p>
+        <button class="btn ghost" ng-click="vm.reload()" ng-disabled="vm.loading">
+            {{ vm.loading ? 'Refreshing...' : 'Refresh' }}
+        </button>
+    </article>
+
+    <section class="grid cols-2" ng-if="vm.summary">
+        <article class="panel kpi">
+            <p class="label">Ledger Income</p>
+            <p class="value text-income">{{ vm.summary.totalIncome | currency }}</p>
+        </article>
+        <article class="panel kpi">
+            <p class="label">Ledger Expenses</p>
+            <p class="value text-expense">{{ vm.summary.totalExpenses | currency }}</p>
+        </article>
+        <article class="panel kpi">
+            <p class="label">Ledger Balance</p>
+            <p class="value">{{ vm.summary.balance | currency }}</p>
+        </article>
+        <article class="panel kpi">
+            <p class="label">User</p>
+            <p class="value">{{ vm.summary.userEmail }}</p>
+        </article>
+    </section>
+
+    <article class="panel" ng-if="vm.monthlyReport">
+        <h3>Reporting Monthly ({{ vm.currentYear }}-{{ vm.currentMonth }})</h3>
+        <div class="grid cols-3">
+            <div>
+                <p class="label">Income</p>
+                <p class="value text-income">{{ vm.monthlyReport.incomeTotal | currency }}</p>
+            </div>
+            <div>
+                <p class="label">Expenses</p>
+                <p class="value text-expense">{{ vm.monthlyReport.expenseTotal | currency }}</p>
+            </div>
+            <div>
+                <p class="label">Balance</p>
+                <p class="value">{{ vm.monthlyReport.balance | currency }}</p>
+            </div>
+        </div>
+        <p class="muted">Reporting is event-driven and can lag briefly behind writes.</p>
+    </article>
+</section>

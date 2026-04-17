@@ -191,6 +191,7 @@ This section describes the main failure modes in the system and the expected beh
 - **Behaviour:** An outbox row is marked as processed only after a successful publish. If the worker crashes after publishing but before marking the row as processed, the same row may be picked up and published again on the next polling cycle.
 - **Impact:** `reporting-service` may receive the same event more than once.
 - **Recovery / mitigation:** Duplicate delivery is expected at the messaging level and is handled safely by the idempotent consumer in `reporting-service`.
+
 ## Local Setup
 
 ### Prerequisites
@@ -217,6 +218,7 @@ Services started:
 - RabbitMQ AMQP: `localhost:5672`
 - RabbitMQ UI: `http://localhost:15672` (`rabbit` / `rabbit`)
 - pgAdmin: `http://localhost:5051`
+- AngularJS Frontend: `http://localhost:8080`
 - Identity API: `http://localhost:3000/api`
 - Ledger API: `http://localhost:3001/api`
 - Reporting API: `http://localhost:3002/api`
@@ -298,6 +300,27 @@ Default base URLs:
 - Identity: `http://localhost:3000/api`
 - Ledger: `http://localhost:3001/api`
 - Reporting: `http://localhost:3002/api`
+- Frontend: `http://localhost:8080`
+
+## AngularJS Frontend
+
+AngularJS 1.x frontend is located in `personal-finance-frontend` and served by nginx in Docker mode.
+
+Feature screens:
+
+- Login/Register
+- Dashboard summary
+- Categories list/create
+- Transactions list/create/delete
+- Reports (monthly and category spend)
+
+The frontend calls each backend service directly:
+
+- Identity: `http://localhost:3000/api`
+- Ledger: `http://localhost:3001/api`
+- Reporting: `http://localhost:3002/api`
+
+CORS is enabled in all services with `FRONTEND_ORIGIN` (defaults to `http://localhost:8080`).
 
 Swagger:
 
@@ -334,7 +357,6 @@ npm run test:all
 
 ## TODO
 
-- Add CORS configuration
 - Add rate limiter
 - Add CSRF protection
 - Add a lightweight API gateway to centralize external access instead of exposing each service directly

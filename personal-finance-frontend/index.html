@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" ng-app="pfApp">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Personal Finance Frontend</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="app.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-route.min.js"></script>
+    <script src="js/app.module.js"></script>
+    <script src="js/config/api.config.js"></script>
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/interceptors/auth.interceptor.js"></script>
+    <script src="js/services/ledger-api.service.js"></script>
+    <script src="js/services/reporting-api.service.js"></script>
+    <script src="js/config/http.config.js"></script>
+    <script src="js/config/routes.config.js"></script>
+    <script src="js/controllers/app.controller.js"></script>
+    <script src="js/controllers/login.controller.js"></script>
+    <script src="js/controllers/register.controller.js"></script>
+    <script src="js/controllers/dashboard.controller.js"></script>
+    <script src="js/controllers/categories.controller.js"></script>
+    <script src="js/controllers/transactions.controller.js"></script>
+    <script src="js/controllers/reports.controller.js"></script>
+    <script src="js/run/auth.run.js"></script>
+</head>
+
+<body ng-controller="AppShellController as app" class="app-body">
+    <div class="ambient-glow ambient-glow-a"></div>
+    <div class="ambient-glow ambient-glow-b"></div>
+
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">Distributed Finance</p>
+            <h1>Personal Finance</h1>
+        </div>
+        <div class="topbar-actions" ng-if="app.isAuthenticated()">
+            <span class="chip">{{ app.user.email }}</span>
+            <button class="btn ghost" ng-click="app.logout()">Logout</button>
+        </div>
+    </header>
+
+    <nav class="tabs" ng-if="app.isAuthenticated()">
+        <a href="#/dashboard" ng-class="{ active: app.isActive('/dashboard') }">Dashboard</a>
+        <a href="#/categories" ng-class="{ active: app.isActive('/categories') }">Categories</a>
+        <a href="#/transactions" ng-class="{ active: app.isActive('/transactions') }">Transactions</a>
+        <a href="#/reports" ng-class="{ active: app.isActive('/reports') }">Reports</a>
+    </nav>
+
+    <main class="view-wrap" ng-view></main>
+
+    <div class="toast" ng-if="app.errorMessage">{{ app.errorMessage }}</div>
+</body>
+
+</html>

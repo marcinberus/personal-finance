@@ -4,12 +4,13 @@ x-shared-env: &shared-env
   JWT_SECRET: dev-jwt-secret
   JWT_EXPIRES_IN: 1d
   INTERNAL_SECRET: dev-internal-secret
+  FRONTEND_ORIGIN: http://localhost:8080
   RABBITMQ_URL: amqp://rabbit:rabbit@rabbitmq:5672/personal_finance
-  OUTBOX_PUBLISHER_ENABLED: "true"
-  OUTBOX_POLL_INTERVAL_MS: "2000"
-  OUTBOX_PUBLISH_BATCH_SIZE: "50"
-  IDENTITY_HTTP_TIMEOUT_MS: "1500"
-  IDENTITY_HTTP_RETRIES: "1"
+  OUTBOX_PUBLISHER_ENABLED: 'true'
+  OUTBOX_POLL_INTERVAL_MS: '2000'
+  OUTBOX_PUBLISH_BATCH_SIZE: '50'
+  IDENTITY_HTTP_TIMEOUT_MS: '1500'
+  IDENTITY_HTTP_RETRIES: '1'
 
 services:
   postgres:
@@ -21,11 +22,11 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: personal_finance_db
     ports:
-      - "5433:5432"
+      - '5433:5432'
     volumes:
       - personal-finance-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d personal_finance_db"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d personal_finance_db']
       interval: 5s
       timeout: 3s
       retries: 20
@@ -37,7 +38,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@local.dev
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "5051:80"
+      - '5051:80'
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,12 +53,12 @@ services:
       RABBITMQ_DEFAULT_PASS: rabbit
       RABBITMQ_DEFAULT_VHOST: personal_finance
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - '5672:5672'
+      - '15672:15672'
     volumes:
       - personal-finance-rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
       interval: 5s
       timeout: 5s
       retries: 20
@@ -76,7 +77,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    restart: "no"
+    restart: 'no'
 
   identity-service:
     build:
@@ -86,7 +87,7 @@ services:
     command: npm run start:identity
     environment:
       <<: *shared-env
-      IDENTITY_PORT: "3000"
+      IDENTITY_PORT: '3000'
       IDENTITY_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/personal_finance_db?schema=identity
     depends_on:
       postgres:
@@ -94,7 +95,7 @@ services:
       migrations:
         condition: service_completed_successfully
     ports:
-      - "3000:3000"
+      - '3000:3000'
     restart: unless-stopped
 
   ledger-service:
@@ -105,7 +106,7 @@ services:
     command: npm run start:ledger
     environment:
       <<: *shared-env
-      LEDGER_PORT: "3001"
+      LEDGER_PORT: '3001'
       LEDGER_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/personal_finance_db?schema=ledger
       IDENTITY_SERVICE_URL: http://identity-service:3000
     depends_on:
@@ -118,7 +119,7 @@ services:
       identity-service:
         condition: service_started
     ports:
-      - "3001:3001"
+      - '3001:3001'
     restart: unless-stopped
 
   reporting-service:
@@ -129,7 +130,7 @@ services:
     command: npm run start:reporting
     environment:
       <<: *shared-env
-      REPORTING_PORT: "3002"
+      REPORTING_PORT: '3002'
       REPORTING_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/personal_finance_db?schema=reporting
     depends_on:
       postgres:
@@ -139,7 +140,24 @@ services:
       migrations:
         condition: service_completed_successfully
     ports:
-      - "3002:3002"
+      - '3002:3002'
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:1.27-alpine
+    container_name: personal-finance-frontend
+    volumes:
+      - ./personal-finance-frontend:/usr/share/nginx/html:ro
+      - ./personal-finance-frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      identity-service:
+        condition: service_started
+      ledger-service:
+        condition: service_started
+      reporting-service:
+        condition: service_started
+    ports:
+      - '8080:80'
     restart: unless-stopped
 
 volumes:
