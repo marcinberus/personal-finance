@@ -1,0 +1,11 @@
+<header class="topbar">
+    <div>
+        <p class="eyebrow">Distributed Finance</p>
+        <h1>Personal Finance</h1>
+    </div>
+
+    <div class="topbar-actions" ng-if="isAuthenticated">
+        <span class="chip">{{ user.email }}</span>
+        <button class="btn ghost" ng-click="onLogout()">Logout</button>
+    </div>
+</header>

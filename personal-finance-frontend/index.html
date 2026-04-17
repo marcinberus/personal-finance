@@ -25,6 +25,7 @@
     <script src="js/config/http.config.js"></script>
     <script src="js/config/routes.config.js"></script>
     <script src="js/controllers/app.controller.js"></script>
+    <script src="js/directives/pf-topbar.directive.js"></script>
     <script src="js/controllers/login.controller.js"></script>
     <script src="js/controllers/register.controller.js"></script>
     <script src="js/controllers/dashboard.controller.js"></script>
@@ -38,16 +39,7 @@
     <div class="ambient-glow ambient-glow-a"></div>
     <div class="ambient-glow ambient-glow-b"></div>
 
-    <header class="topbar">
-        <div>
-            <p class="eyebrow">Distributed Finance</p>
-            <h1>Personal Finance</h1>
-        </div>
-        <div class="topbar-actions" ng-if="app.isAuthenticated()">
-            <span class="chip">{{ app.user.email }}</span>
-            <button class="btn ghost" ng-click="app.logout()">Logout</button>
-        </div>
-    </header>
+    <pf-topbar user="app.user" is-authenticated="app.isAuthenticated()" on-logout="app.logout()"></pf-topbar>
 
     <nav class="tabs" ng-if="app.isAuthenticated()">
         <a href="#/dashboard" ng-class="{ active: app.isActive('/dashboard') }">Dashboard</a>
