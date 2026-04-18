@@ -2,20 +2,26 @@
     <h2>Sign In</h2>
     <p class="muted">Use your identity-service account to access ledger and reporting data.</p>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" class="grid" novalidate>
+    <form #loginForm="ngForm" (ngSubmit)="submit(loginForm)" class="grid" novalidate>
         <div>
             <label for="login-email">Email</label>
-            <input id="login-email" type="email" formControlName="email" autocomplete="email" />
-            <p class="field-error" *ngIf="isInvalid('email')">Enter a valid email address.</p>
+            <input id="login-email" type="email" name="email" [(ngModel)]="model.email" #emailModel="ngModel" required
+                email autocomplete="email" />
+            <p class="field-error" *ngIf="emailModel.invalid && (emailModel.touched || loginForm.submitted)">
+                Enter a valid email address.
+            </p>
         </div>
 
         <div>
             <label for="login-password">Password</label>
-            <input id="login-password" type="password" formControlName="password" autocomplete="current-password" />
-            <p class="field-error" *ngIf="isInvalid('password')">Use at least 8 characters.</p>
+            <input id="login-password" type="password" name="password" [(ngModel)]="model.password"
+                #passwordModel="ngModel" required minlength="8" autocomplete="current-password" />
+            <p class="field-error" *ngIf="passwordModel.invalid && (passwordModel.touched || loginForm.submitted)">
+                Use at least 8 characters.
+            </p>
         </div>
 
-        <button class="btn primary" type="submit" [disabled]="submitting">
+        <button class="btn primary" type="submit" [disabled]="submitting || loginForm.invalid">
             {{ submitting ? 'Signing in...' : 'Sign In' }}
         </button>
     </form>
