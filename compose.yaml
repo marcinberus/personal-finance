@@ -181,6 +181,7 @@ services:
     container_name: personal-finance-frontend
     volumes:
       - ./infra/nginx/frontend-edge.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infra/nginx/shell-config.js:/etc/nginx/shell-config.js:ro
     depends_on:
       frontend-legacy:
         condition: service_started

@@ -1,18 +1,16 @@
 <main class="shell">
   <header class="shell-header">
     <div>
-      <p class="eyebrow">Incremental Migration</p>
+      <p class="eyebrow">{{ eyebrow }}</p>
       <h1>{{ title }}</h1>
     </div>
-    <p class="note">Migration init</p>
+    <p class="note">{{ note }}</p>
   </header>
 
   <nav class="tabs" aria-label="Feature routes">
-    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-    <a routerLink="/categories" routerLinkActive="active">Categories</a>
-    <a routerLink="/transactions" routerLinkActive="active">Transactions</a>
-    <a routerLink="/reports" routerLinkActive="active">Reports</a>
-    <a routerLink="/login" routerLinkActive="active">Login</a>
+    <a *ngFor="let item of navTabs" [attr.href]="item.href" [class.active]="isActiveTab(item.path, item.owner)">
+      {{ item.label }}
+    </a>
   </nav>
 
   <section class="view-wrap">

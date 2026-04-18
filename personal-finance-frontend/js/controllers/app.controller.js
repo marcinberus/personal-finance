@@ -5,9 +5,17 @@
     '$location',
     '$scope',
     '$timeout',
+    '$window',
     'AuthSessionService',
-    function ($location, $scope, $timeout, AuthSessionService) {
+    function ($location, $scope, $timeout, $window, AuthSessionService) {
       var vm = this;
+      var shellConfig = $window.PF_SHELL_CONFIG || {};
+
+      vm.shell = shellConfig?.topbar;
+      vm.authTabs = (shellConfig?.tabs || []).filter(function (tab) {
+        return tab.authOnly;
+      });
+
       vm.user = AuthSessionService.getUser();
       vm.errorMessage = '';
 

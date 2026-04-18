@@ -5,6 +5,7 @@
     return {
       restrict: 'E',
       scope: {
+        shell: '<',
         user: '<',
         isAuthenticated: '<',
         onLogout: '&',
