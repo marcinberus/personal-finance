@@ -1,10 +1,10 @@
-# Personal Finance Distributed System (NestJS + AngularJS)
+# Personal Finance Distributed System (NestJS + Angular)
 
-Full-stack personal-finance system with an AngularJS frontend and a distributed NestJS backend.
+Full-stack personal-finance system with an Angular 20 frontend and a distributed NestJS backend.
 
 This repository contains:
 
-- AngularJS 1.x SPA frontend (`personal-finance-frontend`) served by nginx in Docker mode
+- Angular 20 SPA frontend (`personal-finance-frontend`) served by the `frontend` container in Docker mode
 - Distributed NestJS backend services (`identity-service`, `ledger-service`, `reporting-service`)
 - RabbitMQ (event transport)
 - PostgreSQL + Prisma (per-service schema isolation)
@@ -14,7 +14,7 @@ This repository contains:
 ## Architecture Overview
 
 ```text
-AngularJS Frontend (http://localhost:8080)
+Angular 20 Frontend (http://localhost:8080)
   |
   +--> identity-service (HTTP, JWT issue/validate, users)
   |
@@ -219,7 +219,7 @@ Services started:
 - RabbitMQ AMQP: `localhost:5672`
 - RabbitMQ UI: `http://localhost:15672` (`rabbit` / `rabbit`)
 - pgAdmin: `http://localhost:5051`
-- AngularJS Frontend (nginx): `http://localhost:8080`
+- Angular Frontend: `http://localhost:8080`
 - Identity API: `http://localhost:3000/api`
 - Ledger API: `http://localhost:3001/api`
 - Reporting API: `http://localhost:3002/api`
@@ -296,11 +296,15 @@ npm run start:ledger:dev
 npm run start:reporting:dev
 ```
 
-For frontend in host mode, run a static file server from `personal-finance-frontend` (for example with `npx serve`):
+## Angular Frontend
+
+Angular 20 frontend is located in `personal-finance-frontend`.
+In Docker mode it runs in the `frontend` service and is available at `http://localhost:8080`.
+It is a browser SPA that directly calls all three backend APIs.
+For frontend in host mode, run Angular dev server:
 
 ```bash
-cd personal-finance-frontend
-npx serve . -l 8080
+npm run start:frontend
 ```
 
 Default base URLs:
@@ -309,11 +313,6 @@ Default base URLs:
 - Ledger: `http://localhost:3001/api`
 - Reporting: `http://localhost:3002/api`
 - Frontend: `http://localhost:8080`
-
-## AngularJS Frontend
-
-AngularJS 1.x frontend is located in `personal-finance-frontend` and served by nginx in Docker mode.
-It is a browser SPA that directly calls all three backend APIs.
 
 Feature screens:
 
@@ -333,7 +332,11 @@ CORS is enabled in all services with `FRONTEND_ORIGIN` (defaults to `http://loca
 
 If you run the frontend on a different origin/port in host mode, set `FRONTEND_ORIGIN` in each backend service accordingly.
 
-Swagger:
+### Frontend Migration Status
+
+The frontend migration from AngularJS 1.8.3 to Angular 20 has been completed. Legacy AngularJS frontend was decommissioned and removed from this repository. Historical AngularJS snapshots are available via dedicated Git tags.
+
+## Swagger:
 
 - Identity: `http://localhost:3000/swagger`
 - Ledger: `http://localhost:3001/swagger`
