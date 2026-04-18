@@ -30,9 +30,11 @@
         <div class="spacer-top" *ngIf="monthly as report">
             <p><strong>Year:</strong> {{ report.year }}</p>
             <p><strong>Month:</strong> {{ report.month || 'all' }}</p>
-            <p><strong>Income:</strong> <span class="text-income">{{ report.incomeTotal | currency }}</span></p>
-            <p><strong>Expenses:</strong> <span class="text-expense">{{ report.expenseTotal | currency }}</span></p>
-            <p><strong>Balance:</strong> {{ report.balance | currency }}</p>
+            <p><strong>Income:</strong>&nbsp;<span class="text-income">{{ report.incomeTotal | localizedCurrency
+                    }}</span></p>
+            <p><strong>Expenses:</strong>&nbsp;<span class="text-expense">{{ report.expenseTotal | localizedCurrency
+                    }}</span></p>
+            <p><strong>Balance:</strong> {{ report.balance | localizedCurrency }}</p>
         </div>
     </article>
 
@@ -75,7 +77,7 @@
                 <tbody>
                     <tr *ngFor="let item of categorySpend; trackBy: trackByCategoryId">
                         <td>{{ item.categoryName }}</td>
-                        <td>{{ item.total | currency }}</td>
+                        <td>{{ item.total | localizedCurrency }}</td>
                     </tr>
                     <tr *ngIf="!categorySpend.length && !categoryLoading">
                         <td colspan="2" class="muted">No category spend records for selected period.</td>

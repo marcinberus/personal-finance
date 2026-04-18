@@ -2,12 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
+import { LocalizedCurrencyPipe } from '../../shared/localization/localized-currency.pipe';
 import { CategorySpendItem, MonthlyReport, ReportsApiService } from './reports-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-reports-page',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LocalizedCurrencyPipe],
   templateUrl: './reports-page.component.html',
   styleUrls: ['./reports-page.component.css'],
 })
