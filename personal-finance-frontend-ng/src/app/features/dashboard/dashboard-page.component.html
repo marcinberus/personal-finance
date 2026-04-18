@@ -1,0 +1,49 @@
+<section class="grid">
+    <article class="panel">
+        <h2>Overview</h2>
+        <p class="muted">Snapshot from ledger summary and reporting monthly projection.</p>
+        <button class="btn ghost" type="button" (click)="reload()" [disabled]="loading">
+            {{ loading ? 'Refreshing...' : 'Refresh' }}
+        </button>
+    </article>
+
+    <section class="grid cols-2" *ngIf="summary as data">
+        <article class="panel kpi">
+            <p class="label">Ledger Income</p>
+            <p class="value text-income">{{ data.totalIncome | localizedCurrency }}</p>
+        </article>
+        <article class="panel kpi">
+            <p class="label">Ledger Expenses</p>
+            <p class="value text-expense">{{ data.totalExpenses | localizedCurrency }}</p>
+        </article>
+        <article class="panel kpi">
+            <p class="label">Ledger Balance</p>
+            <p class="value">{{ data.balance | localizedCurrency }}</p>
+        </article>
+        <article class="panel kpi">
+            <p class="label">User</p>
+            <p class="value">{{ data.userEmail || '-' }}</p>
+        </article>
+    </section>
+
+    <article class="panel" *ngIf="monthlyReport as report">
+        <h3>Reporting Monthly ({{ currentYear }}-{{ currentMonth }})</h3>
+        <div class="grid cols-3">
+            <div>
+                <p class="label">Income</p>
+                <p class="value text-income">{{ report.incomeTotal | localizedCurrency }}</p>
+            </div>
+            <div>
+                <p class="label">Expenses</p>
+                <p class="value text-expense">{{ report.expenseTotal | localizedCurrency }}</p>
+            </div>
+            <div>
+                <p class="label">Balance</p>
+                <p class="value">{{ report.balance | localizedCurrency }}</p>
+            </div>
+        </div>
+        <p class="muted">Reporting is event-driven and can lag briefly behind writes.</p>
+    </article>
+</section>
+
+<p class="toast" *ngIf="errorMessage">{{ errorMessage }}</p>

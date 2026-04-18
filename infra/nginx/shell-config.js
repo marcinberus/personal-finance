@@ -7,9 +7,9 @@ window.PF_SHELL_CONFIG = {
     {
       id: 'dashboard',
       label: 'Dashboard',
-      href: '#/dashboard',
+      href: '/dashboard',
       path: '/dashboard',
-      owner: 'legacy',
+      owner: 'ng',
       authOnly: true,
     },
     {
