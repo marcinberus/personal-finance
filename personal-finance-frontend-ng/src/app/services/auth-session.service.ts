@@ -2,6 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../shared/api/api-endpoints';
+import { environment } from '../../environments/environment';
 
 export type AuthUser = {
   id: string;
@@ -22,9 +24,9 @@ type AuthCredentials = {
 export class AuthSessionService {
   private readonly http = inject(HttpClient);
 
-  private readonly tokenKey = 'pf_access_token';
-  private readonly userKey = 'pf_user';
-  private readonly identityBaseUrl = 'http://localhost:3000/api';
+  private readonly tokenKey = environment.storageKeys.authToken;
+  private readonly userKey = environment.storageKeys.authUser;
+  private readonly identityBaseUrl = API_ENDPOINTS.identityBaseUrl;
 
   login(credentials: AuthCredentials): Observable<AuthSessionPayload> {
     return this.http
