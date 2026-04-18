@@ -15,7 +15,8 @@
   </header>
 
   <nav class="tabs" aria-label="Feature routes">
-    <a *ngFor="let item of navTabs" [attr.href]="item.href" [class.active]="isActiveTab(item.path, item.owner)">
+    <a *ngFor="let item of navTabs" [routerLink]="item.route" routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }">
       {{ item.label }}
     </a>
   </nav>
