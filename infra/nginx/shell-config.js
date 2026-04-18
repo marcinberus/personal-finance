@@ -31,9 +31,9 @@ window.PF_SHELL_CONFIG = {
     {
       id: 'reports',
       label: 'Reports',
-      href: '#/reports',
+      href: '/reports',
       path: '/reports',
-      owner: 'legacy',
+      owner: 'ng',
       authOnly: true,
     },
     {
