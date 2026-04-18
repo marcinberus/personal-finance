@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "personal-finance-frontend-ng": {
+    "personal-finance-frontend": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -66,10 +66,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "personal-finance-frontend-ng:build:production"
+              "buildTarget": "personal-finance-frontend:build:production"
             },
             "development": {
-              "buildTarget": "personal-finance-frontend-ng:build:development"
+              "buildTarget": "personal-finance-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"

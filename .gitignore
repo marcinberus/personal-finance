@@ -57,23 +57,23 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /generated/prisma
 
-# Angular frontend (personal-finance-frontend-ng)
-/personal-finance-frontend-ng/dist
-/personal-finance-frontend-ng/tmp
-/personal-finance-frontend-ng/out-tsc
-/personal-finance-frontend-ng/bazel-out
-/personal-finance-frontend-ng/node_modules
-/personal-finance-frontend-ng/.angular/cache
-/personal-finance-frontend-ng/.sass-cache
-/personal-finance-frontend-ng/connect.lock
-/personal-finance-frontend-ng/coverage
-/personal-finance-frontend-ng/libpeerconnection.log
-/personal-finance-frontend-ng/testem.log
-/personal-finance-frontend-ng/typings
-/personal-finance-frontend-ng/__screenshots__/
-/personal-finance-frontend-ng/.history/*
-/personal-finance-frontend-ng/.vscode/*
-!/personal-finance-frontend-ng/.vscode/settings.json
-!/personal-finance-frontend-ng/.vscode/tasks.json
-!/personal-finance-frontend-ng/.vscode/launch.json
-!/personal-finance-frontend-ng/.vscode/extensions.json
+# Angular frontend (personal-finance-frontend)
+/personal-finance-frontend/dist
+/personal-finance-frontend/tmp
+/personal-finance-frontend/out-tsc
+/personal-finance-frontend/bazel-out
+/personal-finance-frontend/node_modules
+/personal-finance-frontend/.angular/cache
+/personal-finance-frontend/.sass-cache
+/personal-finance-frontend/connect.lock
+/personal-finance-frontend/coverage
+/personal-finance-frontend/libpeerconnection.log
+/personal-finance-frontend/testem.log
+/personal-finance-frontend/typings
+/personal-finance-frontend/__screenshots__/
+/personal-finance-frontend/.history/*
+/personal-finance-frontend/.vscode/*
+!/personal-finance-frontend/.vscode/settings.json
+!/personal-finance-frontend/.vscode/tasks.json
+!/personal-finance-frontend/.vscode/launch.json
+!/personal-finance-frontend/.vscode/extensions.json
