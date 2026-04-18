@@ -1,0 +1,24 @@
+<div class="ambient-glow ambient-glow-a" aria-hidden="true"></div>
+<div class="ambient-glow ambient-glow-b" aria-hidden="true"></div>
+
+<main class="shell">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">{{ eyebrow }}</p>
+      <h1>{{ title }}</h1>
+    </div>
+
+    <div class="topbar-actions" *ngIf="isAuthenticated()">
+      <span class="chip">{{ userEmail }}</span>
+      <button class="btn ghost" type="button" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Feature routes">
+    <a *ngFor="let item of navTabs" [attr.href]="item.href" [class.active]="isActiveTab(item.path, item.owner)">
+      {{ item.label }}
+    </a>
+  </nav>
+
+  <router-outlet></router-outlet>
+</main>

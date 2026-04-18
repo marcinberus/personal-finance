@@ -1,7 +1,7 @@
 <header class="topbar">
     <div>
-        <p class="eyebrow">Distributed Finance</p>
-        <h1>Personal Finance</h1>
+        <p class="eyebrow">{{ (shell && shell.eyebrow) || 'Distributed Finance' }}</p>
+        <h1>{{ (shell && shell.title) || 'Personal Finance' }}</h1>
     </div>
 
     <div class="topbar-actions" ng-if="isAuthenticated">

@@ -4,9 +4,16 @@
   angular.module('pfApp').run([
     '$rootScope',
     '$location',
+    '$window',
     'AuthSessionService',
     'LocalizationService',
-    function ($rootScope, $location, AuthSessionService, LocalizationService) {
+    function (
+      $rootScope,
+      $location,
+      $window,
+      AuthSessionService,
+      LocalizationService,
+    ) {
       LocalizationService.init();
 
       $rootScope.$on('$routeChangeStart', function (_event, next) {
@@ -15,7 +22,7 @@
           next.requiresAuth &&
           !AuthSessionService.isAuthenticated()
         ) {
-          $location.path('/login');
+          $window.location.assign('/login');
           return;
         }
 

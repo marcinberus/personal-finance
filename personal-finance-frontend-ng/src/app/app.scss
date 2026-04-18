@@ -1,0 +1,99 @@
+:host {
+  display: block;
+}
+
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 auto 1rem auto;
+  gap: 0.8rem;
+}
+
+h1 {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.5rem, 1.1rem + 1.3vw, 2.2rem);
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--ink-soft, #4e5566);
+  font-size: 0.72rem;
+}
+
+.note {
+  color: var(--ink-soft, #4e5566);
+  margin: 0.3rem 0 0;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tabs {
+  max-width: 1080px;
+  margin: 0 auto 1rem auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tabs a {
+  text-decoration: none;
+  color: var(--ink, #1a1f2b);
+  border: 1px solid var(--panel-border, rgba(15, 23, 42, 0.08));
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  transition: all 0.18s ease;
+}
+
+.tabs a.active {
+  background: var(--primary, #0b6bcb);
+  color: #fff;
+}
+
+.chip {
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--panel-border, rgba(15, 23, 42, 0.08));
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.68);
+  font-size: 0.84rem;
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.58rem 0.95rem;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.btn.ghost {
+  border: 1px solid var(--panel-border, rgba(15, 23, 42, 0.08));
+  background: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topbar-actions {
+    width: 100%;
+  }
+}

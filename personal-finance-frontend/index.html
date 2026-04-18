@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="app.css" />
     <script src="vendor/angularjs/angular.min.js"></script>
     <script src="vendor/angularjs/angular-route.min.js"></script>
+    <script src="/shell-config.js"></script>
     <script src="js/app.module.js"></script>
     <script src="js/config/api.config.js"></script>
     <script src="js/config/localization.config.js"></script>
@@ -39,13 +40,12 @@
     <div class="ambient-glow ambient-glow-a"></div>
     <div class="ambient-glow ambient-glow-b"></div>
 
-    <pf-topbar user="app.user" is-authenticated="app.isAuthenticated()" on-logout="app.logout()"></pf-topbar>
+    <pf-topbar shell="app.shell" user="app.user" is-authenticated="app.isAuthenticated()"
+        on-logout="app.logout()"></pf-topbar>
 
     <nav class="tabs" ng-if="app.isAuthenticated()">
-        <a href="#/dashboard" ng-class="{ active: app.isActive('/dashboard') }">Dashboard</a>
-        <a href="#/categories" ng-class="{ active: app.isActive('/categories') }">Categories</a>
-        <a href="#/transactions" ng-class="{ active: app.isActive('/transactions') }">Transactions</a>
-        <a href="#/reports" ng-class="{ active: app.isActive('/reports') }">Reports</a>
+        <a ng-repeat="item in app.authTabs track by item.id" ng-href="{{ item.href }}"
+            ng-class="{ active: app.isActive(item.path) }">{{ item.label }}</a>
     </nav>
 
     <main class="view-wrap" ng-view></main>

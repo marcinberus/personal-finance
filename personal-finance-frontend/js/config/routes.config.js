@@ -9,14 +9,22 @@
 
       $routeProvider
         .when('/login', {
-          templateUrl: 'templates/auth/login.page.html',
-          controller: 'LoginPageController',
-          controllerAs: 'vm',
+          template: '',
+          controller: [
+            '$window',
+            function ($window) {
+              $window.location.replace('/login');
+            },
+          ],
         })
         .when('/register', {
-          templateUrl: 'templates/auth/register.page.html',
-          controller: 'RegisterPageController',
-          controllerAs: 'vm',
+          template: '',
+          controller: [
+            '$window',
+            function ($window) {
+              $window.location.replace('/register');
+            },
+          ],
         })
         .when('/dashboard', {
           templateUrl: 'templates/dashboard/dashboard.page.html',
