@@ -23,9 +23,9 @@ window.PF_SHELL_CONFIG = {
     {
       id: 'transactions',
       label: 'Transactions',
-      href: '#/transactions',
+      href: '/transactions',
       path: '/transactions',
-      owner: 'legacy',
+      owner: 'ng',
       authOnly: true,
     },
     {
