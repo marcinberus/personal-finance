@@ -2,7 +2,6 @@ window.PF_SHELL_CONFIG = {
   topbar: {
     eyebrow: 'Distributed Finance',
     title: 'Personal Finance',
-    note: 'Migration shell',
   },
   tabs: [
     {
@@ -42,7 +41,15 @@ window.PF_SHELL_CONFIG = {
       label: 'Login',
       href: '/login',
       path: '/login',
-      owner: 'legacy',
+      owner: 'ng',
+      authOnly: false,
+    },
+    {
+      id: 'register',
+      label: 'Register',
+      href: '/register',
+      path: '/register',
+      owner: 'ng',
       authOnly: false,
     },
   ],

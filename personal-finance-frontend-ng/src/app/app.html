@@ -1,10 +1,17 @@
+<div class="ambient-glow ambient-glow-a" aria-hidden="true"></div>
+<div class="ambient-glow ambient-glow-b" aria-hidden="true"></div>
+
 <main class="shell">
-  <header class="shell-header">
+  <header class="topbar">
     <div>
       <p class="eyebrow">{{ eyebrow }}</p>
       <h1>{{ title }}</h1>
     </div>
-    <p class="note">{{ note }}</p>
+
+    <div class="topbar-actions" *ngIf="isAuthenticated()">
+      <span class="chip">{{ userEmail }}</span>
+      <button class="btn ghost" type="button" (click)="logout()">Logout</button>
+    </div>
   </header>
 
   <nav class="tabs" aria-label="Feature routes">

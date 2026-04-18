@@ -30,7 +30,7 @@
       vm.logout = function () {
         AuthSessionService.logout();
         vm.user = null;
-        $location.path('/login');
+        $window.location.assign('/login');
       };
 
       $scope.$on('auth-updated', function () {
