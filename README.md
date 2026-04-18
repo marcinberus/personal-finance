@@ -1,10 +1,11 @@
-# Personal Finance Distributed System (NestJS)
+# Personal Finance Distributed System (NestJS + AngularJS)
 
-Distributed personal-finance backend built as a NestJS monorepo with:
+Full-stack personal-finance system with an AngularJS frontend and a distributed NestJS backend.
 
-- `identity-service` (auth + users)
-- `ledger-service` (categories + transactions, source of truth)
-- `reporting-service` (read-model projections + report queries)
+This repository contains:
+
+- AngularJS 1.x SPA frontend (`personal-finance-frontend`) served by nginx in Docker mode
+- Distributed NestJS backend services (`identity-service`, `ledger-service`, `reporting-service`)
 - RabbitMQ (event transport)
 - PostgreSQL + Prisma (per-service schema isolation)
 - Transactional outbox and idempotent consumer patterns
@@ -13,7 +14,7 @@ Distributed personal-finance backend built as a NestJS monorepo with:
 ## Architecture Overview
 
 ```text
-Client
+AngularJS Frontend (http://localhost:8080)
   |
   +--> identity-service (HTTP, JWT issue/validate, users)
   |
@@ -191,6 +192,7 @@ This section describes the main failure modes in the system and the expected beh
 - **Behaviour:** An outbox row is marked as processed only after a successful publish. If the worker crashes after publishing but before marking the row as processed, the same row may be picked up and published again on the next polling cycle.
 - **Impact:** `reporting-service` may receive the same event more than once.
 - **Recovery / mitigation:** Duplicate delivery is expected at the messaging level and is handled safely by the idempotent consumer in `reporting-service`.
+
 ## Local Setup
 
 ### Prerequisites
@@ -205,7 +207,7 @@ This section describes the main failure modes in the system and the expected beh
 npm install
 ```
 
-### 2) Start full local stack (apps + infrastructure)
+### 2) Start full local stack (apps + infrastructure + frontend)
 
 ```bash
 npm run docker:up
@@ -217,6 +219,7 @@ Services started:
 - RabbitMQ AMQP: `localhost:5672`
 - RabbitMQ UI: `http://localhost:15672` (`rabbit` / `rabbit`)
 - pgAdmin: `http://localhost:5051`
+- AngularJS Frontend (nginx): `http://localhost:8080`
 - Identity API: `http://localhost:3000/api`
 - Ledger API: `http://localhost:3001/api`
 - Reporting API: `http://localhost:3002/api`
@@ -293,11 +296,42 @@ npm run start:ledger:dev
 npm run start:reporting:dev
 ```
 
+For frontend in host mode, run a static file server from `personal-finance-frontend` (for example with `npx serve`):
+
+```bash
+cd personal-finance-frontend
+npx serve . -l 8080
+```
+
 Default base URLs:
 
 - Identity: `http://localhost:3000/api`
 - Ledger: `http://localhost:3001/api`
 - Reporting: `http://localhost:3002/api`
+- Frontend: `http://localhost:8080`
+
+## AngularJS Frontend
+
+AngularJS 1.x frontend is located in `personal-finance-frontend` and served by nginx in Docker mode.
+It is a browser SPA that directly calls all three backend APIs.
+
+Feature screens:
+
+- Login/Register
+- Dashboard summary
+- Categories list/create
+- Transactions list/create/delete
+- Reports (monthly and category spend)
+
+Default API targets used by the frontend:
+
+- Identity: `http://localhost:3000/api`
+- Ledger: `http://localhost:3001/api`
+- Reporting: `http://localhost:3002/api`
+
+CORS is enabled in all services with `FRONTEND_ORIGIN` (defaults to `http://localhost:8080`).
+
+If you run the frontend on a different origin/port in host mode, set `FRONTEND_ORIGIN` in each backend service accordingly.
 
 Swagger:
 
@@ -334,7 +368,6 @@ npm run test:all
 
 ## TODO
 
-- Add CORS configuration
 - Add rate limiter
 - Add CSRF protection
 - Add a lightweight API gateway to centralize external access instead of exposing each service directly
