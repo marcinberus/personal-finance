@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs/operators';
+import { AuthSessionService } from '../../services/auth-session.service';
 
 @Component({
   standalone: true,
@@ -12,6 +14,7 @@ import { RouterLink } from '@angular/router';
 })
 export class RegisterPageComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly authSessionService = inject(AuthSessionService);
 
   protected submitting = false;
 
@@ -33,15 +36,18 @@ export class RegisterPageComponent {
 
     this.submitting = true;
 
-    const email = this.form.controls.email.value.trim();
-    const migrationUser = {
-      id: 'migration-user',
-      email,
+    const payload = {
+      email: this.form.controls.email.value.trim(),
+      password: this.form.controls.password.value,
     };
 
-    // Keep the same storage contract used by legacy AuthSessionService.
-    window.localStorage.setItem('pf_access_token', 'migration-mode-token');
-    window.localStorage.setItem('pf_user', JSON.stringify(migrationUser));
-    window.location.assign('/dashboard');
+    this.authSessionService
+      .register(payload)
+      .pipe(finalize(() => (this.submitting = false)))
+      .subscribe({
+        next: () => {
+          window.location.assign('/dashboard');
+        },
+      });
   }
 }

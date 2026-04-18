@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AuthSessionService } from './services/auth-session.service';
 
 type ShellTab = {
   id: string;
@@ -35,6 +36,7 @@ declare global {
 })
 export class App {
   private readonly shellConfig: ShellConfig = window.PF_SHELL_CONFIG ?? {};
+  private readonly authSessionService = inject(AuthSessionService);
 
   protected readonly eyebrow = this.shellConfig.topbar?.eyebrow ?? 'Distributed Finance';
   protected readonly title = this.shellConfig.topbar?.title ?? 'Personal Finance';
@@ -46,27 +48,15 @@ export class App {
   }
 
   protected get userEmail(): string {
-    const raw = window.localStorage.getItem('pf_user');
-    if (!raw) {
-      return '';
-    }
-
-    try {
-      const parsed = JSON.parse(raw) as { email?: string };
-      return parsed.email ?? '';
-    } catch {
-      return '';
-    }
+    return this.authSessionService.getUser()?.email ?? '';
   }
 
   protected isAuthenticated(): boolean {
-    const token = window.localStorage.getItem('pf_access_token');
-    return !!token && !!this.userEmail;
+    return this.authSessionService.isAuthenticated();
   }
 
   protected logout(): void {
-    window.localStorage.removeItem('pf_access_token');
-    window.localStorage.removeItem('pf_user');
+    this.authSessionService.logout();
     window.location.assign('/login');
   }
 
