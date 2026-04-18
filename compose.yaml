@@ -143,21 +143,6 @@ services:
       - '3002:3002'
     restart: unless-stopped
 
-  frontend-legacy:
-    image: nginx:1.27-alpine
-    container_name: personal-finance-frontend-legacy
-    volumes:
-      - ./personal-finance-frontend:/usr/share/nginx/html:ro
-      - ./personal-finance-frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      identity-service:
-        condition: service_started
-      ledger-service:
-        condition: service_started
-      reporting-service:
-        condition: service_started
-    restart: unless-stopped
-
   frontend-ng:
     build:
       context: ./personal-finance-frontend-ng
@@ -183,8 +168,6 @@ services:
       - ./infra/nginx/frontend-edge.conf:/etc/nginx/conf.d/default.conf:ro
       - ./infra/nginx/shell-config.js:/etc/nginx/shell-config.js:ro
     depends_on:
-      frontend-legacy:
-        condition: service_started
       frontend-ng:
         condition: service_started
     ports:
