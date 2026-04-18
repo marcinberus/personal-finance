@@ -1,6 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
+import { API_ENDPOINTS } from '../../shared/api/api-endpoints';
+import { toAppError } from '../../shared/api/http-error.util';
 
 export type MonthlyReport = {
   year: number;
@@ -29,7 +31,7 @@ export type CategorySpendQuery = {
 @Injectable({ providedIn: 'root' })
 export class ReportsApiService {
   private readonly http = inject(HttpClient);
-  private readonly reportingBaseUrl = 'http://localhost:3002/api';
+  private readonly reportingBaseUrl = API_ENDPOINTS.reportingBaseUrl;
 
   getMonthly(query: MonthlyReportQuery): Observable<MonthlyReport> {
     const year = this.normalizeYear(query.year);
@@ -42,7 +44,11 @@ export class ReportsApiService {
 
     return this.http
       .get<MonthlyReport>(`${this.reportingBaseUrl}/reports/monthly`, { params })
-      .pipe(catchError((error) => this.handleHttpError(error, 'Failed to load monthly report.')));
+      .pipe(
+        catchError((error) =>
+          throwError(() => toAppError(error, 'Failed to load monthly report.')),
+        ),
+      );
   }
 
   getCategorySpend(query: CategorySpendQuery): Observable<CategorySpendItem[]> {
@@ -53,7 +59,11 @@ export class ReportsApiService {
 
     return this.http
       .get<CategorySpendItem[]>(`${this.reportingBaseUrl}/reports/category-spend`, { params })
-      .pipe(catchError((error) => this.handleHttpError(error, 'Failed to load category spend.')));
+      .pipe(
+        catchError((error) =>
+          throwError(() => toAppError(error, 'Failed to load category spend.')),
+        ),
+      );
   }
 
   private normalizeYear(value: number | string): number {
@@ -85,22 +95,5 @@ export class ReportsApiService {
     }
 
     return parsed;
-  }
-
-  private handleHttpError(error: unknown, fallback: string) {
-    if (error instanceof HttpErrorResponse) {
-      const message =
-        (error.error as { message?: string } | null)?.message ??
-        error.message ??
-        error.statusText ??
-        fallback;
-      return throwError(() => new Error(message));
-    }
-
-    if (error instanceof Error) {
-      return throwError(() => error);
-    }
-
-    return throwError(() => new Error(fallback));
   }
 }

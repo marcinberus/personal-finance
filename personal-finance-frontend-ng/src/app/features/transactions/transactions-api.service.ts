@@ -1,6 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, throwError } from 'rxjs';
+import { API_ENDPOINTS } from '../../shared/api/api-endpoints';
+import { toAppError } from '../../shared/api/http-error.util';
 import { Category, CategoryType } from '../categories/categories-api.service';
 
 export type Transaction = {
@@ -37,12 +39,12 @@ export type CreateTransactionPayload = {
 @Injectable({ providedIn: 'root' })
 export class TransactionsApiService {
   private readonly http = inject(HttpClient);
-  private readonly ledgerBaseUrl = 'http://localhost:3001/api';
+  private readonly ledgerBaseUrl = API_ENDPOINTS.ledgerBaseUrl;
 
   listCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.ledgerBaseUrl}/categories`).pipe(
       map((items) => items.map((item) => this.normalizeCategory(item))),
-      catchError((error) => this.handleHttpError(error, 'Failed to load categories.')),
+      catchError((error) => throwError(() => toAppError(error, 'Failed to load categories.'))),
     );
   }
 
@@ -67,7 +69,7 @@ export class TransactionsApiService {
 
     return this.http.get<Transaction[]>(`${this.ledgerBaseUrl}/transactions`, { params }).pipe(
       map((items) => items.map((item) => this.normalizeTransaction(item))),
-      catchError((error) => this.handleHttpError(error, 'Failed to load transactions.')),
+      catchError((error) => throwError(() => toAppError(error, 'Failed to load transactions.'))),
     );
   }
 
@@ -76,7 +78,7 @@ export class TransactionsApiService {
 
     return this.http.post<Transaction>(`${this.ledgerBaseUrl}/transactions`, request).pipe(
       map((item) => this.normalizeTransaction(item)),
-      catchError((error) => this.handleHttpError(error, 'Failed to create transaction.')),
+      catchError((error) => throwError(() => toAppError(error, 'Failed to create transaction.'))),
     );
   }
 
@@ -87,7 +89,9 @@ export class TransactionsApiService {
 
     return this.http
       .delete<void>(`${this.ledgerBaseUrl}/transactions/${id}`)
-      .pipe(catchError((error) => this.handleHttpError(error, 'Failed to delete transaction.')));
+      .pipe(
+        catchError((error) => throwError(() => toAppError(error, 'Failed to delete transaction.'))),
+      );
   }
 
   private normalizeCreatePayload(payload: CreateTransactionPayload): CreateTransactionPayload {
@@ -143,22 +147,5 @@ export class TransactionsApiService {
         type: item.category?.type === 'income' ? 'income' : 'expense',
       },
     };
-  }
-
-  private handleHttpError(error: unknown, fallback: string) {
-    if (error instanceof HttpErrorResponse) {
-      const message =
-        (error.error as { message?: string } | null)?.message ??
-        error.message ??
-        error.statusText ??
-        fallback;
-      return throwError(() => new Error(message));
-    }
-
-    if (error instanceof Error) {
-      return throwError(() => error);
-    }
-
-    return throwError(() => new Error(fallback));
   }
 }

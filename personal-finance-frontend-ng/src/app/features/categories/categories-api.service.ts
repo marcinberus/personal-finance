@@ -1,6 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, throwError } from 'rxjs';
+import { API_ENDPOINTS } from '../../shared/api/api-endpoints';
+import { toAppError } from '../../shared/api/http-error.util';
 
 export type CategoryType = 'income' | 'expense';
 
@@ -20,7 +22,7 @@ export type CategoryPayload = {
 @Injectable({ providedIn: 'root' })
 export class CategoriesApiService {
   private readonly http = inject(HttpClient);
-  private readonly ledgerBaseUrl = 'http://localhost:3001/api';
+  private readonly ledgerBaseUrl = API_ENDPOINTS.ledgerBaseUrl;
 
   listCategories(type?: CategoryType): Observable<Category[]> {
     let params = new HttpParams();
@@ -30,7 +32,7 @@ export class CategoriesApiService {
 
     return this.http.get<Category[]>(`${this.ledgerBaseUrl}/categories`, { params }).pipe(
       map((items) => items.map((item) => this.normalizeCategory(item))),
-      catchError((error) => this.handleHttpError(error, 'Failed to load categories.')),
+      catchError((error) => throwError(() => toAppError(error, 'Failed to load categories.'))),
     );
   }
 
@@ -52,7 +54,7 @@ export class CategoriesApiService {
 
     return this.http.post<Category>(`${this.ledgerBaseUrl}/categories`, request).pipe(
       map((item) => this.normalizeCategory(item)),
-      catchError((error) => this.handleHttpError(error, 'Failed to create category.')),
+      catchError((error) => throwError(() => toAppError(error, 'Failed to create category.'))),
     );
   }
 
@@ -62,22 +64,5 @@ export class CategoriesApiService {
       name: (item.name ?? '').trim(),
       type: item.type === 'income' ? 'income' : 'expense',
     };
-  }
-
-  private handleHttpError(error: unknown, fallback: string) {
-    if (error instanceof HttpErrorResponse) {
-      const message =
-        (error.error as { message?: string } | null)?.message ??
-        error.message ??
-        error.statusText ??
-        fallback;
-      return throwError(() => new Error(message));
-    }
-
-    if (error instanceof Error) {
-      return throwError(() => error);
-    }
-
-    return throwError(() => new Error(fallback));
   }
 }

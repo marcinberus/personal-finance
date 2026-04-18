@@ -1,36 +1,12 @@
 import { Injectable } from '@angular/core';
-
-type LocalizationConfig = {
-  defaultLocale: string;
-  defaultCurrency: string;
-  localeCurrencyMap: Record<string, string>;
-};
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class LocalizationService {
-  private static readonly STORAGE_KEY = 'pf.locale';
+  private readonly storageKey = environment.storageKeys.locale;
+  private readonly config = environment.localization;
 
-  private readonly config: LocalizationConfig = {
-    defaultLocale: 'en-US',
-    defaultCurrency: 'USD',
-    localeCurrencyMap: {
-      'en-US': 'USD',
-      'en-GB': 'GBP',
-      'de-DE': 'EUR',
-      'fr-FR': 'EUR',
-      'it-IT': 'EUR',
-      'es-ES': 'EUR',
-      'pl-PL': 'PLN',
-      en: 'USD',
-      de: 'EUR',
-      fr: 'EUR',
-      it: 'EUR',
-      es: 'EUR',
-      pl: 'PLN',
-    },
-  };
-
-  private state = {
+  private state: { locale: string; currency: string } = {
     locale: this.config.defaultLocale,
     currency: this.config.defaultCurrency,
   };
@@ -94,10 +70,11 @@ export class LocalizationService {
   }
 
   private resolveCurrency(locale: string): string {
+    const map = this.config.localeCurrencyMap as Record<string, string>;
     const candidates = this.buildCandidates(locale);
 
     for (const candidate of candidates) {
-      const mappedCurrency = this.config.localeCurrencyMap[candidate];
+      const mappedCurrency = map[candidate];
       if (mappedCurrency) {
         return mappedCurrency;
       }
@@ -117,7 +94,7 @@ export class LocalizationService {
 
   private persistLocale(locale: string): void {
     try {
-      localStorage.setItem(LocalizationService.STORAGE_KEY, locale);
+      localStorage.setItem(this.storageKey, locale);
     } catch {
       // Ignore storage failures in restricted environments.
     }
@@ -125,7 +102,7 @@ export class LocalizationService {
 
   private readStoredLocale(): string | null {
     try {
-      return localStorage.getItem(LocalizationService.STORAGE_KEY);
+      return localStorage.getItem(this.storageKey);
     } catch {
       return null;
     }

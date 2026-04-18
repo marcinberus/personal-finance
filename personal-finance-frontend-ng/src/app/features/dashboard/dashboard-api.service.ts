@@ -1,6 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, throwError } from 'rxjs';
+import { API_ENDPOINTS } from '../../shared/api/api-endpoints';
+import { toAppError } from '../../shared/api/http-error.util';
 
 export type LedgerSummary = {
   totalIncome: number;
@@ -21,13 +23,13 @@ export type MonthlyReport = {
 export class DashboardApiService {
   private readonly http = inject(HttpClient);
 
-  private readonly ledgerBaseUrl = 'http://localhost:3001/api';
-  private readonly reportingBaseUrl = 'http://localhost:3002/api';
+  private readonly ledgerBaseUrl = API_ENDPOINTS.ledgerBaseUrl;
+  private readonly reportingBaseUrl = API_ENDPOINTS.reportingBaseUrl;
 
   getSummary(): Observable<LedgerSummary> {
     return this.http.get<LedgerSummary>(`${this.ledgerBaseUrl}/transactions/summary`).pipe(
       map((summary) => this.normalizeSummary(summary)),
-      catchError((error) => this.handleHttpError(error, 'Failed to load ledger summary.')),
+      catchError((error) => throwError(() => toAppError(error, 'Failed to load ledger summary.'))),
     );
   }
 
@@ -46,7 +48,9 @@ export class DashboardApiService {
       .get<MonthlyReport>(`${this.reportingBaseUrl}/reports/monthly`, { params })
       .pipe(
         map((report) => this.normalizeMonthlyReport(report)),
-        catchError((error) => this.handleHttpError(error, 'Failed to load monthly report.')),
+        catchError((error) =>
+          throwError(() => toAppError(error, 'Failed to load monthly report.')),
+        ),
       );
   }
 
@@ -67,22 +71,5 @@ export class DashboardApiService {
       expenseTotal: Number(report.expenseTotal ?? 0),
       balance: Number(report.balance ?? 0),
     };
-  }
-
-  private handleHttpError(error: unknown, fallback: string) {
-    if (error instanceof HttpErrorResponse) {
-      const message =
-        (error.error as { message?: string } | null)?.message ??
-        error.message ??
-        error.statusText ??
-        fallback;
-      return throwError(() => new Error(message));
-    }
-
-    if (error instanceof Error) {
-      return throwError(() => error);
-    }
-
-    return throwError(() => new Error(fallback));
   }
 }
