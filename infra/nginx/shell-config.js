@@ -15,9 +15,9 @@ window.PF_SHELL_CONFIG = {
     {
       id: 'categories',
       label: 'Categories',
-      href: '#/categories',
+      href: '/categories',
       path: '/categories',
-      owner: 'legacy',
+      owner: 'ng',
       authOnly: true,
     },
     {

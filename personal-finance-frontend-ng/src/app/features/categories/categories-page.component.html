@@ -1,0 +1,68 @@
+<section class="grid cols-2">
+    <article class="panel">
+        <h2>Create Category</h2>
+        <form #createForm="ngForm" (ngSubmit)="create(createForm)" class="grid" novalidate>
+            <div>
+                <label for="cat-name">Name</label>
+                <input id="cat-name" name="name" [(ngModel)]="form.name" #nameModel="ngModel" maxlength="100"
+                    required />
+                <p class="field-error" *ngIf="nameModel.invalid && (nameModel.touched || createForm.submitted)">
+                    Category name is required (max 100 chars).
+                </p>
+            </div>
+
+            <div>
+                <label for="cat-type">Type</label>
+                <select id="cat-type" name="type" [(ngModel)]="form.type" required>
+                    <option value="income">income</option>
+                    <option value="expense">expense</option>
+                </select>
+            </div>
+
+            <button class="btn primary" type="submit" [disabled]="creating || createForm.invalid">
+                {{ creating ? 'Creating...' : 'Create Category' }}
+            </button>
+        </form>
+    </article>
+
+    <article class="panel">
+        <h2>Category List</h2>
+        <div class="row">
+            <div>
+                <label for="cat-filter">Filter by type</label>
+                <select id="cat-filter" name="filterType" [(ngModel)]="filterType" (ngModelChange)="onFilterChanged()">
+                    <option value="">all</option>
+                    <option value="income">income</option>
+                    <option value="expense">expense</option>
+                </select>
+            </div>
+            <div class="actions-cell">
+                <button class="btn ghost" type="button" (click)="load()" [disabled]="loading">Reload</button>
+            </div>
+        </div>
+
+        <div class="table-wrap spacer-top">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let category of categories; trackBy: trackByCategoryId">
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.type }}</td>
+                        <td>{{ category.createdAt | date: 'mediumDate' }}</td>
+                    </tr>
+                    <tr *ngIf="!categories.length && !loading">
+                        <td colspan="3" class="muted">No categories yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+
+<p class="toast" *ngIf="errorMessage">{{ errorMessage }}</p>
