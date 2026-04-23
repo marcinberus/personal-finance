@@ -5,6 +5,11 @@
         <button class="btn ghost" type="button" (click)="reload()" [disabled]="loading">
             {{ loading ? 'Refreshing...' : 'Refresh' }}
         </button>
+        <div class="dashboard-meta">
+            <span class="muted auto-refresh">
+                {{ loading ? 'Refreshing…' : 'Auto-refresh in ' + nextRefreshIn + 's' }}
+            </span>
+        </div>
     </article>
 
     <section class="grid cols-2" *ngIf="summary as data">

@@ -1,3 +1,13 @@
 :host {
   display: block;
 }
+
+.dashboard-meta {
+  display: flex;
+  align-items: center;
+  margin: 0.75rem 0;
+}
+
+.auto-refresh {
+  font-size: 0.85rem;
+}

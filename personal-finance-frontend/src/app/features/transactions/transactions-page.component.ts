@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -16,6 +22,7 @@ import {
 @Component({
   standalone: true,
   selector: 'app-transactions-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, LocalizedCurrencyPipe],
   templateUrl: './transactions-page.component.html',
   styleUrls: ['./transactions-page.component.css'],
@@ -23,6 +30,7 @@ import {
 export class TransactionsPageComponent {
   private readonly transactionsApiService = inject(TransactionsApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected categories: Category[] = [];
   protected transactions: Transaction[] = [];
@@ -60,7 +68,10 @@ export class TransactionsPageComponent {
     this.transactionsApiService
       .listCategories()
       .pipe(
-        finalize(() => (this.loadingCategories = false)),
+        finalize(() => {
+          this.loadingCategories = false;
+          this.cdr.markForCheck();
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -89,7 +100,10 @@ export class TransactionsPageComponent {
         to: this.filters.to || undefined,
       })
       .pipe(
-        finalize(() => (this.loadingTransactions = false)),
+        finalize(() => {
+          this.loadingTransactions = false;
+          this.cdr.markForCheck();
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -119,7 +133,10 @@ export class TransactionsPageComponent {
         transactionDate: this.form.transactionDate,
       })
       .pipe(
-        finalize(() => (this.creating = false)),
+        finalize(() => {
+          this.creating = false;
+          this.cdr.markForCheck();
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -144,7 +161,10 @@ export class TransactionsPageComponent {
     this.transactionsApiService
       .deleteTransaction(id)
       .pipe(
-        finalize(() => (this.deletingId = null)),
+        finalize(() => {
+          this.deletingId = null;
+          this.cdr.markForCheck();
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({

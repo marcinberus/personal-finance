@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -14,6 +20,7 @@ import {
 @Component({
   standalone: true,
   selector: 'app-categories-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule],
   templateUrl: './categories-page.component.html',
   styleUrls: ['./categories-page.component.css'],
@@ -21,6 +28,7 @@ import {
 export class CategoriesPageComponent {
   private readonly categoriesApiService = inject(CategoriesApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected categories: Category[] = [];
   protected filterType: '' | CategoryType = '';
@@ -45,7 +53,10 @@ export class CategoriesPageComponent {
     this.categoriesApiService
       .listCategories(this.filterType || undefined)
       .pipe(
-        finalize(() => (this.loading = false)),
+        finalize(() => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -69,7 +80,10 @@ export class CategoriesPageComponent {
     this.categoriesApiService
       .createCategory(this.form)
       .pipe(
-        finalize(() => (this.creating = false)),
+        finalize(() => {
+          this.creating = false;
+          this.cdr.markForCheck();
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({

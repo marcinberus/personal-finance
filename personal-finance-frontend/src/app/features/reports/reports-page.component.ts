@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -10,6 +16,7 @@ import { CategorySpendItem, MonthlyReport, ReportsApiService } from './reports-a
 @Component({
   standalone: true,
   selector: 'app-reports-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, LocalizedCurrencyPipe],
   templateUrl: './reports-page.component.html',
   styleUrls: ['./reports-page.component.css'],
@@ -17,6 +24,7 @@ import { CategorySpendItem, MonthlyReport, ReportsApiService } from './reports-a
 export class ReportsPageComponent {
   private readonly reportsApiService = inject(ReportsApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly now = new Date();
 
@@ -57,7 +65,10 @@ export class ReportsPageComponent {
     this.reportsApiService
       .getMonthly(query)
       .pipe(
-        finalize(() => (this.monthlyLoading = false)),
+        finalize(() => {
+          this.monthlyLoading = false;
+          this.cdr.markForCheck();
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -77,7 +88,10 @@ export class ReportsPageComponent {
     this.reportsApiService
       .getCategorySpend(this.categoryQuery)
       .pipe(
-        finalize(() => (this.categoryLoading = false)),
+        finalize(() => {
+          this.categoryLoading = false;
+          this.cdr.markForCheck();
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
