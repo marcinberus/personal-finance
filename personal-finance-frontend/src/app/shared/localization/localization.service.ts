@@ -85,11 +85,8 @@ export class LocalizationService {
 
   private detectBrowserLocale(): string {
     const nav = typeof navigator !== 'undefined' ? navigator : null;
-    const browserLocales = Array.isArray(nav?.languages)
-      ? nav.languages
-      : [nav?.language || this.config.defaultLocale];
-
-    return this.normalizeLocale(browserLocales[0]);
+    const locale = nav?.languages[0] || nav?.language || this.config.defaultLocale;
+    return this.normalizeLocale(locale);
   }
 
   private persistLocale(locale: string): void {

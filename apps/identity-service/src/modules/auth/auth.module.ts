@@ -7,6 +7,7 @@ import type { StringValue } from 'ms';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
+import { AuthCookieService } from './auth-cookie.service';
 
 @Module({
   imports: [
@@ -24,14 +25,14 @@ import { AuthController } from './auth.controller';
           secret,
           signOptions: {
             expiresIn: (configService.get<string>('JWT_EXPIRES_IN') ??
-              '1d') as StringValue,
+              '15m') as StringValue,
           },
         };
       },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, AuthCookieService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

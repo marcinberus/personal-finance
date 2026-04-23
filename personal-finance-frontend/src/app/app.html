@@ -1,25 +1,27 @@
 <div class="ambient-glow ambient-glow-a" aria-hidden="true"></div>
 <div class="ambient-glow ambient-glow-b" aria-hidden="true"></div>
 
-<main class="shell">
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">{{ eyebrow }}</p>
-      <h1>{{ title }}</h1>
-    </div>
+<ng-container *ngIf="vm$ | async as vm">
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">{{ eyebrow }}</p>
+        <h1>{{ title }}</h1>
+      </div>
 
-    <div class="topbar-actions" *ngIf="isAuthenticated()">
-      <span class="chip">{{ userEmail }}</span>
-      <button class="btn ghost" type="button" (click)="logout()">Logout</button>
-    </div>
-  </header>
+      <div class="topbar-actions" *ngIf="vm.isAuthenticated">
+        <span class="chip">{{ vm.userEmail }}</span>
+        <button class="btn ghost" type="button" (click)="logout()">Logout</button>
+      </div>
+    </header>
 
-  <nav class="tabs" aria-label="Feature routes">
-    <a *ngFor="let item of navTabs" [routerLink]="item.route" routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }">
-      {{ item.label }}
-    </a>
-  </nav>
+    <nav class="tabs" aria-label="Feature routes">
+      <a *ngFor="let item of vm.navTabs" [routerLink]="item.route" routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }">
+        {{ item.label }}
+      </a>
+    </nav>
 
-  <router-outlet></router-outlet>
-</main>
+    <router-outlet></router-outlet>
+  </main>
+</ng-container>

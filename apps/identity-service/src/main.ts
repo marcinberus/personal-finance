@@ -7,6 +7,7 @@ import {
   createCorrelationIdMiddleware,
 } from '@app/common';
 import { AppModule } from './app.module';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -20,9 +21,12 @@ async function bootstrap(): Promise<void> {
 
   app.enableCors({
     origin: allowedOrigins,
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-correlation-id'],
   });
+
+  app.use(cookieParser());
 
   app.use(createCorrelationIdMiddleware(correlationIdService));
   app.useGlobalInterceptors(

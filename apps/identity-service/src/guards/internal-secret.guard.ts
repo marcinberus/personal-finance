@@ -4,6 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { timingSafeEqual } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
 
@@ -24,7 +25,13 @@ export class InternalSecretGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const header = request.headers['x-internal-secret'];
 
-    if (header !== secret) {
+    // Use constant-time comparison to prevent timing-based secret enumeration.
+    const headerBuf = Buffer.from(String(header ?? ''));
+    const secretBuf = Buffer.from(secret);
+    if (
+      headerBuf.length !== secretBuf.length ||
+      !timingSafeEqual(headerBuf, secretBuf)
+    ) {
       throw new UnauthorizedException('Invalid internal secret');
     }
 

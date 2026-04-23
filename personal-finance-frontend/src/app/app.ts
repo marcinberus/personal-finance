@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthSessionService } from './services/auth-session.service';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { map } from 'rxjs/operators';
+import { AuthFacadeService } from './services/auth-facade.service';
+import { AuthStateService } from './services/auth-state.service';
 
 type Tab = {
   id: string;
@@ -57,26 +59,29 @@ const TABS: Tab[] = [
   styleUrl: './app.scss',
 })
 export class App {
-  private readonly authSessionService = inject(AuthSessionService);
+  private readonly authFacadeService = inject(AuthFacadeService);
+  private readonly authStateService = inject(AuthStateService);
+  private readonly router = inject(Router);
 
   protected readonly eyebrow = 'Distributed Finance';
   protected readonly title = 'Personal Finance';
 
-  protected get navTabs(): Tab[] {
-    const authenticated = this.isAuthenticated();
-    return TABS.filter((tab) => tab.authOnly === authenticated);
-  }
-
-  protected get userEmail(): string {
-    return this.authSessionService.getUser()?.email ?? '';
-  }
-
-  protected isAuthenticated(): boolean {
-    return this.authSessionService.isAuthenticated();
-  }
+  protected readonly vm$ = this.authStateService.state$.pipe(
+    map((state) => {
+      const isAuthenticated = state.status === 'authenticated';
+      return {
+        isAuthenticated,
+        userEmail: state.user?.email ?? '',
+        navTabs: TABS.filter((tab) => tab.authOnly === isAuthenticated),
+      };
+    }),
+  );
 
   protected logout(): void {
-    this.authSessionService.logout();
-    window.location.assign('/login');
+    this.authFacadeService.logout().subscribe({
+      next: () => {
+        void this.router.navigate(['/login']);
+      },
+    });
   }
 }

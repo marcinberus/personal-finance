@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { LocalizedCurrencyPipe } from '../../shared/localization/localized-currency.pipe';
+import { toAppError } from '../../shared/api/http-error.util';
 import { DashboardApiService, LedgerSummary, MonthlyReport } from './dashboard-api.service';
 
 @Component({
@@ -14,6 +16,7 @@ import { DashboardApiService, LedgerSummary, MonthlyReport } from './dashboard-a
 })
 export class DashboardPageComponent {
   private readonly dashboardApiService = inject(DashboardApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly now = new Date();
   protected readonly currentYear = this.now.getFullYear();
@@ -36,24 +39,18 @@ export class DashboardPageComponent {
       summary: this.dashboardApiService.getSummary(),
       monthlyReport: this.dashboardApiService.getMonthly(this.currentYear, this.currentMonth),
     })
-      .pipe(finalize(() => (this.loading = false)))
+      .pipe(
+        finalize(() => (this.loading = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: ({ summary, monthlyReport }) => {
           this.summary = summary;
           this.monthlyReport = monthlyReport;
         },
         error: (err: unknown) => {
-          this.errorMessage = this.getErrorMessage(err, 'Failed to load dashboard.');
+          this.errorMessage = toAppError(err, 'Failed to load dashboard.').message;
         },
       });
-  }
-
-  private getErrorMessage(err: unknown, fallback: string): string {
-    if (!err || typeof err !== 'object') {
-      return fallback;
-    }
-
-    const maybeError = err as { message?: string; error?: { message?: string } };
-    return maybeError.error?.message ?? maybeError.message ?? fallback;
   }
 }

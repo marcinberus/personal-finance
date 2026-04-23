@@ -4,6 +4,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from './auth.service';
 
+// This strategy overrides the shared JwtStrategy from @app/common so that
+// the identity service can verify a user still exists in the DB on every
+// request, rather than trusting the JWT payload alone.
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(

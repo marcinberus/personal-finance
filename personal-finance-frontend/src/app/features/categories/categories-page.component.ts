@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
+import { toAppError } from '../../shared/api/http-error.util';
 import {
   Category,
   CategoryPayload,
@@ -18,6 +20,7 @@ import {
 })
 export class CategoriesPageComponent {
   private readonly categoriesApiService = inject(CategoriesApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected categories: Category[] = [];
   protected filterType: '' | CategoryType = '';
@@ -41,13 +44,16 @@ export class CategoriesPageComponent {
 
     this.categoriesApiService
       .listCategories(this.filterType || undefined)
-      .pipe(finalize(() => (this.loading = false)))
+      .pipe(
+        finalize(() => (this.loading = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (categories) => {
           this.categories = categories;
         },
         error: (err: unknown) => {
-          this.errorMessage = this.getErrorMessage(err, 'Failed to load categories.');
+          this.errorMessage = toAppError(err, 'Failed to load categories.').message;
         },
       });
   }
@@ -62,7 +68,10 @@ export class CategoriesPageComponent {
 
     this.categoriesApiService
       .createCategory(this.form)
-      .pipe(finalize(() => (this.creating = false)))
+      .pipe(
+        finalize(() => (this.creating = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (createdCategory) => {
           this.form = {
@@ -76,7 +85,7 @@ export class CategoriesPageComponent {
           }
         },
         error: (err: unknown) => {
-          this.errorMessage = this.getErrorMessage(err, 'Failed to create category.');
+          this.errorMessage = toAppError(err, 'Failed to create category.').message;
         },
       });
   }
@@ -87,14 +96,5 @@ export class CategoriesPageComponent {
 
   protected trackByCategoryId(_index: number, category: Category): string {
     return category.id;
-  }
-
-  private getErrorMessage(err: unknown, fallback: string): string {
-    if (!err || typeof err !== 'object') {
-      return fallback;
-    }
-
-    const maybeError = err as { message?: string; error?: { message?: string } };
-    return maybeError.error?.message ?? maybeError.message ?? fallback;
   }
 }

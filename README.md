@@ -239,7 +239,13 @@ Create a root `.env` file:
 ```env
 # Auth
 JWT_SECRET=dev-jwt-secret
-JWT_EXPIRES_IN=1d
+JWT_EXPIRES_IN=15m
+AUTH_REFRESH_SECRET=dev-refresh-secret
+AUTH_REFRESH_TOKEN_TTL_SECONDS=604800
+AUTH_REFRESH_COOKIE_NAME=pf_refresh_token
+AUTH_REFRESH_COOKIE_PATH=/api/auth
+AUTH_COOKIE_SAME_SITE=lax
+AUTH_COOKIE_SECURE=false
 
 # Service ports
 IDENTITY_PORT=3000

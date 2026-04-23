@@ -13,7 +13,7 @@ import { MessagingModule } from './modules/messaging/messaging.module';
     }),
     CorrelationIdModule,
     PrismaModule,
-    JwtAuthModule.register({ enableTokenSigning: true }),
+    JwtAuthModule.register(),
     CategoriesModule,
     TransactionsModule,
     MessagingModule,

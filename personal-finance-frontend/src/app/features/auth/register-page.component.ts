@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { AuthSessionService } from '../../services/auth-session.service';
+import { AuthFacadeService } from '../../services/auth-facade.service';
+import { toAppError } from '../../shared/api/http-error.util';
 
 @Component({
   standalone: true,
@@ -14,9 +15,11 @@ import { AuthSessionService } from '../../services/auth-session.service';
 })
 export class RegisterPageComponent {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly authSessionService = inject(AuthSessionService);
+  private readonly authFacadeService = inject(AuthFacadeService);
+  private readonly router = inject(Router);
 
   protected submitting = false;
+  protected errorMessage = '';
 
   protected readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -35,18 +38,22 @@ export class RegisterPageComponent {
     }
 
     this.submitting = true;
+    this.errorMessage = '';
 
     const payload = {
       email: this.form.controls.email.value.trim(),
       password: this.form.controls.password.value,
     };
 
-    this.authSessionService
+    this.authFacadeService
       .register(payload)
       .pipe(finalize(() => (this.submitting = false)))
       .subscribe({
         next: () => {
-          window.location.assign('/dashboard');
+          void this.router.navigate(['/dashboard']);
+        },
+        error: (err: unknown) => {
+          this.errorMessage = toAppError(err, 'Registration failed. Please try again.').message;
         },
       });
   }

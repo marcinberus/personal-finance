@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { AuthSessionService } from '../../services/auth-session.service';
+import { AuthFacadeService } from '../../services/auth-facade.service';
+import { toAppError } from '../../shared/api/http-error.util';
 
 @Component({
   standalone: true,
@@ -13,9 +14,11 @@ import { AuthSessionService } from '../../services/auth-session.service';
   styleUrls: ['./login-page.component.css'],
 })
 export class LoginPageComponent {
-  private readonly authSessionService = inject(AuthSessionService);
+  private readonly authFacadeService = inject(AuthFacadeService);
+  private readonly router = inject(Router);
 
   protected submitting = false;
+  protected errorMessage = '';
 
   protected model = {
     email: '',
@@ -28,18 +31,22 @@ export class LoginPageComponent {
     }
 
     this.submitting = true;
+    this.errorMessage = '';
 
     const payload = {
       email: this.model.email.trim(),
       password: this.model.password,
     };
 
-    this.authSessionService
+    this.authFacadeService
       .login(payload)
       .pipe(finalize(() => (this.submitting = false)))
       .subscribe({
         next: () => {
-          window.location.assign('/dashboard');
+          void this.router.navigate(['/dashboard']);
+        },
+        error: (err: unknown) => {
+          this.errorMessage = toAppError(err, 'Login failed. Please try again.').message;
         },
       });
   }

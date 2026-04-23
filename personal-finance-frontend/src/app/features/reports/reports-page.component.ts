@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
+import { toAppError } from '../../shared/api/http-error.util';
 import { LocalizedCurrencyPipe } from '../../shared/localization/localized-currency.pipe';
 import { CategorySpendItem, MonthlyReport, ReportsApiService } from './reports-api.service';
 
@@ -14,6 +16,7 @@ import { CategorySpendItem, MonthlyReport, ReportsApiService } from './reports-a
 })
 export class ReportsPageComponent {
   private readonly reportsApiService = inject(ReportsApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly now = new Date();
 
@@ -53,13 +56,16 @@ export class ReportsPageComponent {
 
     this.reportsApiService
       .getMonthly(query)
-      .pipe(finalize(() => (this.monthlyLoading = false)))
+      .pipe(
+        finalize(() => (this.monthlyLoading = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (result) => {
           this.monthly = result;
         },
         error: (err: unknown) => {
-          this.errorMessage = this.getErrorMessage(err, 'Failed to load monthly report.');
+          this.errorMessage = toAppError(err, 'Failed to load monthly report.').message;
         },
       });
   }
@@ -70,27 +76,21 @@ export class ReportsPageComponent {
 
     this.reportsApiService
       .getCategorySpend(this.categoryQuery)
-      .pipe(finalize(() => (this.categoryLoading = false)))
+      .pipe(
+        finalize(() => (this.categoryLoading = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (result) => {
           this.categorySpend = result;
         },
         error: (err: unknown) => {
-          this.errorMessage = this.getErrorMessage(err, 'Failed to load category spend.');
+          this.errorMessage = toAppError(err, 'Failed to load category spend.').message;
         },
       });
   }
 
   protected trackByCategoryId(_index: number, item: CategorySpendItem): string {
     return item.categoryId;
-  }
-
-  private getErrorMessage(err: unknown, fallback: string): string {
-    if (!err || typeof err !== 'object') {
-      return fallback;
-    }
-
-    const maybeError = err as { error?: { message?: string }; message?: string };
-    return maybeError.error?.message ?? maybeError.message ?? fallback;
   }
 }

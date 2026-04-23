@@ -3,15 +3,36 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { AuthCookieService } from './auth-cookie.service';
+import type { Request, Response } from 'express';
 
-const mockAuthResponse = {
-  accessToken: 'signed-jwt-token',
+const mockAuthSession = {
+  accessToken: 'signed-access-token',
+  refreshToken: 'signed-refresh-token',
   user: { id: 'user-id-1', email: 'test@example.com' },
 };
 
 const mockAuthService = {
   register: jest.fn(),
   login: jest.fn(),
+  refresh: jest.fn(),
+};
+
+const mockAuthCookieService = {
+  cookieName: 'pf_refresh_token',
+  getSetCookieOptions: jest.fn().mockReturnValue({
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    path: '/api/auth',
+    maxAge: 604800000,
+  }),
+  getClearCookieOptions: jest.fn().mockReturnValue({
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    path: '/api/auth',
+  }),
 };
 
 describe('AuthController', () => {
@@ -20,7 +41,10 @@ describe('AuthController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [{ provide: AuthService, useValue: mockAuthService }],
+      providers: [
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: AuthCookieService, useValue: mockAuthCookieService },
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
@@ -34,12 +58,25 @@ describe('AuthController', () => {
         email: 'test@example.com',
         password: 'password123',
       };
-      mockAuthService.register.mockResolvedValue(mockAuthResponse);
+      const cookieMock = jest.fn();
+      const response = {
+        cookie: cookieMock,
+      } as unknown as Response;
 
-      const result = await controller.register(dto);
+      mockAuthService.register.mockResolvedValue(mockAuthSession);
+
+      const result = await controller.register(dto, response);
 
       expect(mockAuthService.register).toHaveBeenCalledWith(dto);
-      expect(result).toEqual(mockAuthResponse);
+      expect(cookieMock).toHaveBeenCalledWith(
+        'pf_refresh_token',
+        'signed-refresh-token',
+        expect.objectContaining({ httpOnly: true }),
+      );
+      expect(result).toEqual({
+        accessToken: 'signed-access-token',
+        user: mockAuthSession.user,
+      });
     });
   });
 
@@ -49,12 +86,92 @@ describe('AuthController', () => {
         email: 'test@example.com',
         password: 'password123',
       };
-      mockAuthService.login.mockResolvedValue(mockAuthResponse);
+      const cookieMock = jest.fn();
+      const response = {
+        cookie: cookieMock,
+      } as unknown as Response;
 
-      const result = await controller.login(dto);
+      mockAuthService.login.mockResolvedValue(mockAuthSession);
+
+      const result = await controller.login(dto, response);
 
       expect(mockAuthService.login).toHaveBeenCalledWith(dto);
-      expect(result).toEqual(mockAuthResponse);
+      expect(cookieMock).toHaveBeenCalledWith(
+        'pf_refresh_token',
+        'signed-refresh-token',
+        expect.objectContaining({ httpOnly: true }),
+      );
+      expect(result).toEqual({
+        accessToken: 'signed-access-token',
+        user: mockAuthSession.user,
+      });
+    });
+  });
+
+  describe('refresh', () => {
+    it('should read refresh cookie and return auth response', async () => {
+      const request = {
+        cookies: {
+          pf_refresh_token: 'refresh-token',
+        },
+      } as unknown as Request;
+      const cookieMock = jest.fn();
+      const response = {
+        cookie: cookieMock,
+      } as unknown as Response;
+      mockAuthService.refresh.mockResolvedValue(mockAuthSession);
+
+      const result = await controller.refresh(request, response);
+
+      expect(mockAuthService.refresh).toHaveBeenCalledWith('refresh-token');
+      expect(cookieMock).toHaveBeenCalledWith(
+        'pf_refresh_token',
+        'signed-refresh-token',
+        expect.objectContaining({ httpOnly: true }),
+      );
+      expect(result).toEqual({
+        accessToken: 'signed-access-token',
+        user: mockAuthSession.user,
+      });
+    });
+  });
+
+  describe('session', () => {
+    it('should return current session from refresh cookie', async () => {
+      const request = {
+        cookies: {
+          pf_refresh_token: 'refresh-token',
+        },
+      } as unknown as Request;
+      const cookieMock = jest.fn();
+      const response = {
+        cookie: cookieMock,
+      } as unknown as Response;
+      mockAuthService.refresh.mockResolvedValue(mockAuthSession);
+
+      const result = await controller.session(request, response);
+
+      expect(mockAuthService.refresh).toHaveBeenCalledWith('refresh-token');
+      expect(result).toEqual({
+        accessToken: 'signed-access-token',
+        user: mockAuthSession.user,
+      });
+    });
+  });
+
+  describe('logout', () => {
+    it('should clear refresh cookie', () => {
+      const clearCookieMock = jest.fn();
+      const response = {
+        clearCookie: clearCookieMock,
+      } as unknown as Response;
+
+      controller.logout(response);
+
+      expect(clearCookieMock).toHaveBeenCalledWith(
+        'pf_refresh_token',
+        expect.objectContaining({ httpOnly: true }),
+      );
     });
   });
 

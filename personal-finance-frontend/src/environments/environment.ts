@@ -6,8 +6,6 @@ export const environment = {
     reportingBaseUrl: 'http://localhost:3002/api',
   },
   storageKeys: {
-    authToken: 'pf_access_token',
-    authUser: 'pf_user',
     locale: 'pf.locale',
   },
   localization: {

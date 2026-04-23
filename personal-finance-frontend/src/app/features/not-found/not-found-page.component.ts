@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { AuthSessionService } from '../../services/auth-session.service';
+import { Router, RouterLink } from '@angular/router';
+import { AuthFacadeService } from '../../services/auth-facade.service';
 
 @Component({
   standalone: true,
@@ -43,10 +43,14 @@ import { AuthSessionService } from '../../services/auth-session.service';
   ],
 })
 export class NotFoundPageComponent {
-  private readonly authSessionService = inject(AuthSessionService);
+  private readonly authFacadeService = inject(AuthFacadeService);
+  private readonly router = inject(Router);
 
   protected logout(): void {
-    this.authSessionService.logout();
-    window.location.assign('/login');
+    this.authFacadeService.logout().subscribe({
+      next: () => {
+        void this.router.navigate(['/login']);
+      },
+    });
   }
 }

@@ -8,7 +8,7 @@ import { LocalizationService } from './localization.service';
 export class LocalizedCurrencyPipe implements PipeTransform {
   private readonly localizationService = inject(LocalizationService);
 
-  transform(input: unknown): string | unknown {
+  transform(input: unknown): unknown {
     if (input === null || input === undefined || input === '') {
       return '';
     }

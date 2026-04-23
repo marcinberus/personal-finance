@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
+import { toAppError } from '../../shared/api/http-error.util';
 import { Category } from '../categories/categories-api.service';
 import { LocalizedCurrencyPipe } from '../../shared/localization/localized-currency.pipe';
 import {
@@ -20,6 +22,7 @@ import {
 })
 export class TransactionsPageComponent {
   private readonly transactionsApiService = inject(TransactionsApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected categories: Category[] = [];
   protected transactions: Transaction[] = [];
@@ -56,7 +59,10 @@ export class TransactionsPageComponent {
 
     this.transactionsApiService
       .listCategories()
-      .pipe(finalize(() => (this.loadingCategories = false)))
+      .pipe(
+        finalize(() => (this.loadingCategories = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (categories) => {
           this.categories = categories;
@@ -66,7 +72,7 @@ export class TransactionsPageComponent {
           }
         },
         error: (err: unknown) => {
-          this.errorMessage = this.getErrorMessage(err, 'Failed to load categories.');
+          this.errorMessage = toAppError(err, 'Failed to load categories.').message;
         },
       });
   }
@@ -82,13 +88,16 @@ export class TransactionsPageComponent {
         from: this.filters.from || undefined,
         to: this.filters.to || undefined,
       })
-      .pipe(finalize(() => (this.loadingTransactions = false)))
+      .pipe(
+        finalize(() => (this.loadingTransactions = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (transactions) => {
           this.transactions = transactions;
         },
         error: (err: unknown) => {
-          this.errorMessage = this.getErrorMessage(err, 'Failed to load transactions.');
+          this.errorMessage = toAppError(err, 'Failed to load transactions.').message;
         },
       });
   }
@@ -109,7 +118,10 @@ export class TransactionsPageComponent {
         description: this.form.description,
         transactionDate: this.form.transactionDate,
       })
-      .pipe(finalize(() => (this.creating = false)))
+      .pipe(
+        finalize(() => (this.creating = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           this.form.amount = 0;
@@ -120,7 +132,7 @@ export class TransactionsPageComponent {
           this.loadTransactions();
         },
         error: (err: unknown) => {
-          this.errorMessage = this.getErrorMessage(err, 'Failed to create transaction.');
+          this.errorMessage = toAppError(err, 'Failed to create transaction.').message;
         },
       });
   }
@@ -131,13 +143,16 @@ export class TransactionsPageComponent {
 
     this.transactionsApiService
       .deleteTransaction(id)
-      .pipe(finalize(() => (this.deletingId = null)))
+      .pipe(
+        finalize(() => (this.deletingId = null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           this.transactions = this.transactions.filter((item) => item.id !== id);
         },
         error: (err: unknown) => {
-          this.errorMessage = this.getErrorMessage(err, 'Failed to delete transaction.');
+          this.errorMessage = toAppError(err, 'Failed to delete transaction.').message;
         },
       });
   }
@@ -157,14 +172,5 @@ export class TransactionsPageComponent {
     }
 
     return date.toISOString().substring(0, 10);
-  }
-
-  private getErrorMessage(err: unknown, fallback: string): string {
-    if (!err || typeof err !== 'object') {
-      return fallback;
-    }
-
-    const maybeError = err as { message?: string; error?: { message?: string } };
-    return maybeError.error?.message ?? maybeError.message ?? fallback;
   }
 }

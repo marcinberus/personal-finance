@@ -2,7 +2,13 @@ name: personal-finance-local
 
 x-shared-env: &shared-env
   JWT_SECRET: dev-jwt-secret
-  JWT_EXPIRES_IN: 1d
+  JWT_EXPIRES_IN: 15m
+  AUTH_REFRESH_SECRET: dev-refresh-secret
+  AUTH_REFRESH_TOKEN_TTL_SECONDS: '604800'
+  AUTH_REFRESH_COOKIE_NAME: pf_refresh_token
+  AUTH_REFRESH_COOKIE_PATH: /api/auth
+  AUTH_COOKIE_SAME_SITE: lax
+  AUTH_COOKIE_SECURE: 'false'
   INTERNAL_SECRET: dev-internal-secret
   FRONTEND_ORIGIN: http://localhost:8080
   RABBITMQ_URL: amqp://rabbit:rabbit@rabbitmq:5672/personal_finance

@@ -1,14 +1,19 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthSessionService } from '../services/auth-session.service';
+import { map } from 'rxjs/operators';
+import { AuthFacadeService } from '../services/auth-facade.service';
+import { AuthStateService } from '../services/auth-state.service';
 
 export const authGuard: CanActivateFn = () => {
-  const authSessionService = inject(AuthSessionService);
+  const authFacadeService = inject(AuthFacadeService);
+  const authStateService = inject(AuthStateService);
   const router = inject(Router);
 
-  if (authSessionService.isAuthenticated()) {
-    return true;
+  if (authStateService.isBootstrapped()) {
+    return authStateService.isAuthenticated() ? true : router.parseUrl('/login');
   }
 
-  return router.parseUrl('/login');
+  return authFacadeService
+    .initializeSession()
+    .pipe(map((isAuthenticated) => (isAuthenticated ? true : router.parseUrl('/login'))));
 };

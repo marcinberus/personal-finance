@@ -1,8 +1,10 @@
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
+import { AuthCookieService } from './auth-cookie.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -28,7 +30,22 @@ const mockUsersService = {
 };
 
 const mockJwtService = {
-  signAsync: jest.fn().mockResolvedValue('signed-jwt-token'),
+  signAsync: jest.fn(),
+  verifyAsync: jest.fn(),
+};
+
+const mockConfigService = {
+  get: jest.fn((key: string) => {
+    if (key === 'AUTH_REFRESH_SECRET') {
+      return 'test-refresh-secret';
+    }
+
+    return undefined;
+  }),
+};
+
+const mockAuthCookieService = {
+  refreshTokenTtlSeconds: 604800,
 };
 
 describe('AuthService', () => {
@@ -40,13 +57,22 @@ describe('AuthService', () => {
         AuthService,
         { provide: UsersService, useValue: mockUsersService },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: AuthCookieService, useValue: mockAuthCookieService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
 
     jest.clearAllMocks();
-    mockJwtService.signAsync.mockResolvedValue('signed-jwt-token');
+    mockJwtService.signAsync
+      .mockResolvedValueOnce('signed-access-token')
+      .mockResolvedValueOnce('signed-refresh-token');
+    mockJwtService.verifyAsync.mockResolvedValue({
+      sub: mockUser.id,
+      email: mockUser.email,
+      type: 'refresh',
+    });
   });
 
   describe('register', () => {
@@ -69,7 +95,8 @@ describe('AuthService', () => {
         'hashed-password',
       );
       expect(result).toEqual({
-        accessToken: 'signed-jwt-token',
+        accessToken: 'signed-access-token',
+        refreshToken: 'signed-refresh-token',
         user: { id: mockUser.id, email: mockUser.email },
       });
     });
@@ -103,7 +130,8 @@ describe('AuthService', () => {
         mockUser.passwordHash,
       );
       expect(result).toEqual({
-        accessToken: 'signed-jwt-token',
+        accessToken: 'signed-access-token',
+        refreshToken: 'signed-refresh-token',
         user: { id: mockUser.id, email: mockUser.email },
       });
     });
@@ -140,6 +168,51 @@ describe('AuthService', () => {
       const result = await service.validateUser('non-existent-id');
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('refresh', () => {
+    it('should issue a new auth session for a valid refresh token', async () => {
+      mockUsersService.findById.mockResolvedValue(mockUser);
+
+      const result = await service.refresh('refresh-token');
+
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith('refresh-token', {
+        secret: 'test-refresh-secret',
+      });
+      expect(result).toEqual({
+        accessToken: 'signed-access-token',
+        refreshToken: 'signed-refresh-token',
+        user: { id: mockUser.id, email: mockUser.email },
+      });
+    });
+
+    it('should reject when refresh token verification fails', async () => {
+      mockJwtService.verifyAsync.mockRejectedValueOnce(new Error('invalid'));
+
+      await expect(service.refresh('bad-token')).rejects.toMatchObject({
+        message: 'Invalid refresh token',
+      });
+    });
+
+    it('should reject refresh tokens with non-refresh payload type', async () => {
+      mockJwtService.verifyAsync.mockResolvedValueOnce({
+        sub: mockUser.id,
+        email: mockUser.email,
+        type: 'access',
+      });
+
+      await expect(service.refresh('wrong-type')).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should reject refresh when user no longer exists', async () => {
+      mockUsersService.findById.mockResolvedValue(null);
+
+      await expect(service.refresh('refresh-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });
