@@ -144,8 +144,7 @@ export class TransactionsPageComponent {
           this.form.amount = 0;
           this.form.description = '';
           this.form.transactionDate = this.toDateInputString(new Date());
-          formRef.form.markAsPristine();
-          formRef.form.markAsUntouched();
+          formRef.resetForm(this.form);
           this.loadTransactions();
         },
         error: (err: unknown) => {

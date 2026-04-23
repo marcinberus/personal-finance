@@ -4,7 +4,6 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
-  NgZone,
   inject,
   OnInit,
 } from '@angular/core';
@@ -30,7 +29,6 @@ export class DashboardPageComponent implements OnInit {
   private readonly dashboardApiService = inject(DashboardApiService);
   private readonly refreshService = inject(DashboardRefreshService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly now = new Date();
@@ -97,17 +95,15 @@ export class DashboardPageComponent implements OnInit {
   }
 
   private startAutoRefresh(): void {
-    this.ngZone.runOutsideAngular(() => {
-      const tickInterval = setInterval(() => {
-        this.nextRefreshIn -= 1;
-        this.cdr.detectChanges();
+    const tickInterval = setInterval(() => {
+      this.nextRefreshIn -= 1;
+      this.cdr.markForCheck();
 
-        if (this.nextRefreshIn <= 0) {
-          this.ngZone.run(() => this.reload());
-        }
-      }, 1000);
+      if (this.nextRefreshIn <= 0) {
+        this.reload();
+      }
+    }, 1000);
 
-      this.destroyRef.onDestroy(() => clearInterval(tickInterval));
-    });
+    this.destroyRef.onDestroy(() => clearInterval(tickInterval));
   }
 }
