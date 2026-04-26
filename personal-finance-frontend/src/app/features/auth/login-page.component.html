@@ -1,34 +1,52 @@
 <section class="auth-shell panel">
-    <h2>Sign In</h2>
-    <p class="muted">Use your identity-service account to access ledger and reporting data.</p>
+  <h2>Sign In</h2>
+  <p class="muted">Use your identity-service account to access ledger and reporting data.</p>
 
-    <form #loginForm="ngForm" (ngSubmit)="submit(loginForm)" class="grid" novalidate>
-        <div>
-            <label for="login-email">Email</label>
-            <input id="login-email" type="email" name="email" [(ngModel)]="model.email" #emailModel="ngModel" required
-                email autocomplete="email" />
-            <p class="field-error" *ngIf="emailModel.invalid && (emailModel.touched || loginForm.submitted)">
-                Enter a valid email address.
-            </p>
-        </div>
+  <form #loginForm="ngForm" (ngSubmit)="submit(loginForm)" class="grid" novalidate>
+    <div>
+      <label for="login-email">Email</label>
+      <input
+        id="login-email"
+        type="email"
+        name="email"
+        [(ngModel)]="model.email"
+        #emailModel="ngModel"
+        required
+        email
+        autocomplete="email"
+      />
+      @if (emailModel.invalid && (emailModel.touched || loginForm.submitted)) {
+        <p class="field-error">Enter a valid email address.</p>
+      }
+    </div>
 
-        <div>
-            <label for="login-password">Password</label>
-            <input id="login-password" type="password" name="password" [(ngModel)]="model.password"
-                #passwordModel="ngModel" required minlength="8" autocomplete="current-password" />
-            <p class="field-error" *ngIf="passwordModel.invalid && (passwordModel.touched || loginForm.submitted)">
-                Use at least 8 characters.
-            </p>
-        </div>
+    <div>
+      <label for="login-password">Password</label>
+      <input
+        id="login-password"
+        type="password"
+        name="password"
+        [(ngModel)]="model.password"
+        #passwordModel="ngModel"
+        required
+        minlength="8"
+        autocomplete="current-password"
+      />
+      @if (passwordModel.invalid && (passwordModel.touched || loginForm.submitted)) {
+        <p class="field-error">Use at least 8 characters.</p>
+      }
+    </div>
 
-        <button class="btn primary" type="submit" [disabled]="submitting() || loginForm.invalid">
-            {{ submitting() ? 'Signing in...' : 'Sign In' }}
-        </button>
-        <p class="field-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
-    </form>
+    <button class="btn primary" type="submit" [disabled]="submitting() || loginForm.invalid">
+      {{ submitting() ? 'Signing in...' : 'Sign In' }}
+    </button>
+    @if (errorMessage()) {
+      <p class="field-error">{{ errorMessage() }}</p>
+    }
+  </form>
 
-    <p class="spacer-top muted">
-        No account yet?
-        <a routerLink="/register">Create one</a>
-    </p>
+  <p class="spacer-top muted">
+    No account yet?
+    <a routerLink="/register">Create one</a>
+  </p>
 </section>

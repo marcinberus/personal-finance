@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -10,7 +9,7 @@ import { toAppError } from '../../shared/api/http-error.util';
   standalone: true,
   selector: 'app-register-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register-page.component.html',
   styleUrls: ['./register-page.component.css'],
 })
@@ -48,9 +47,7 @@ export class RegisterPageComponent {
 
     this.authFacadeService
       .register(payload)
-      .pipe(
-        finalize(() => this.submitting.set(false)),
-      )
+      .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => {
           void this.router.navigate(['/dashboard']);

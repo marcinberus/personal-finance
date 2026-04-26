@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,7 +20,7 @@ const AUTO_REFRESH_INTERVAL_MS = 60_000;
   standalone: true,
   selector: 'app-dashboard-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, LocalizedCurrencyPipe],
+  imports: [LocalizedCurrencyPipe],
   templateUrl: './dashboard-page.component.html',
   styleUrls: ['./dashboard-page.component.css'],
 })

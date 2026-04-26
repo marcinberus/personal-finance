@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthFacadeService } from '../../services/auth-facade.service';
@@ -7,7 +6,7 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
   standalone: true,
   selector: 'app-not-found-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   template: `
     <section class="panel not-found-shell">
       <p class="eyebrow">404</p>

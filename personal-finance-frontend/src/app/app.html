@@ -8,17 +8,24 @@
       <h1>{{ title }}</h1>
     </div>
 
-    <div class="topbar-actions" *ngIf="vm().isAuthenticated">
-      <span class="chip">{{ vm().userEmail }}</span>
-      <button class="btn ghost" type="button" (click)="logout()">Logout</button>
-    </div>
+    @if (vm().isAuthenticated) {
+      <div class="topbar-actions">
+        <span class="chip">{{ vm().userEmail }}</span>
+        <button class="btn ghost" type="button" (click)="logout()">Logout</button>
+      </div>
+    }
   </header>
 
   <nav class="tabs" aria-label="Feature routes">
-    <a *ngFor="let item of vm().navTabs" [routerLink]="item.route" routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }">
-      {{ item.label }}
-    </a>
+    @for (item of vm().navTabs; track item) {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        {{ item.label }}
+      </a>
+    }
   </nav>
 
   <router-outlet></router-outlet>

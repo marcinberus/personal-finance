@@ -1,135 +1,179 @@
 <section class="grid">
-    <article class="panel">
-        <h2>Create Transaction</h2>
-        <form #createForm="ngForm" (ngSubmit)="create(createForm)" class="grid" novalidate>
-            <div class="row cols-3">
-                <div>
-                    <label for="tx-category">Category</label>
-                    <select id="tx-category" name="categoryId" [(ngModel)]="form.categoryId" #categoryIdModel="ngModel"
-                        required>
-                        <option value="" disabled>Select category</option>
-                        <option *ngFor="let category of categories(); trackBy: trackByCategoryId" [value]="category.id">
-                            {{ category.name }} ({{ category.type }})
-                        </option>
-                    </select>
-                    <p class="field-error"
-                        *ngIf="categoryIdModel.invalid && (categoryIdModel.touched || createForm.submitted)">
-                        Select a category.
-                    </p>
-                </div>
-                <div>
-                    <label for="tx-amount">Amount</label>
-                    <input id="tx-amount" type="number" min="0.01" step="0.01" name="amount" [(ngModel)]="form.amount"
-                        #amountModel="ngModel" required />
-                    <p class="field-error" *ngIf="amountModel.invalid && (amountModel.touched || createForm.submitted)">
-                        Enter amount greater than 0.
-                    </p>
-                </div>
-                <div>
-                    <label for="tx-type">Type</label>
-                    <select id="tx-type" name="type" [(ngModel)]="form.type" required>
-                        <option value="income">income</option>
-                        <option value="expense">expense</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <div>
-                    <label for="tx-description">Description</label>
-                    <input id="tx-description" maxlength="500" name="description" [(ngModel)]="form.description"
-                        #descriptionModel="ngModel" />
-                    <p class="field-error"
-                        *ngIf="descriptionModel.invalid && (descriptionModel.touched || createForm.submitted)">
-                        Description must be at most 500 characters.
-                    </p>
-                </div>
-                <div>
-                    <label for="tx-date">Date</label>
-                    <input id="tx-date" type="date" name="transactionDate" [(ngModel)]="form.transactionDate"
-                        #transactionDateModel="ngModel" required />
-                    <p class="field-error"
-                        *ngIf="transactionDateModel.invalid && (transactionDateModel.touched || createForm.submitted)">
-                        Select transaction date.
-                    </p>
-                </div>
-            </div>
-            <button class="btn accent" type="submit" [disabled]="creating() || createForm.invalid">
-                {{ creating() ? 'Creating...' : 'Create Transaction' }}
-            </button>
-        </form>
-    </article>
+  <article class="panel">
+    <h2>Create Transaction</h2>
+    <form #createForm="ngForm" (ngSubmit)="create(createForm)" class="grid" novalidate>
+      <div class="row cols-3">
+        <div>
+          <label for="tx-category">Category</label>
+          <select
+            id="tx-category"
+            name="categoryId"
+            [(ngModel)]="form.categoryId"
+            #categoryIdModel="ngModel"
+            required
+          >
+            <option value="" disabled>Select category</option>
+            @for (category of categories(); track trackByCategoryId($index, category)) {
+              <option [value]="category.id">{{ category.name }} ({{ category.type }})</option>
+            }
+          </select>
+          @if (categoryIdModel.invalid && (categoryIdModel.touched || createForm.submitted)) {
+            <p class="field-error">Select a category.</p>
+          }
+        </div>
+        <div>
+          <label for="tx-amount">Amount</label>
+          <input
+            id="tx-amount"
+            type="number"
+            min="0.01"
+            step="0.01"
+            name="amount"
+            [(ngModel)]="form.amount"
+            #amountModel="ngModel"
+            required
+          />
+          @if (amountModel.invalid && (amountModel.touched || createForm.submitted)) {
+            <p class="field-error">Enter amount greater than 0.</p>
+          }
+        </div>
+        <div>
+          <label for="tx-type">Type</label>
+          <select id="tx-type" name="type" [(ngModel)]="form.type" required>
+            <option value="income">income</option>
+            <option value="expense">expense</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="tx-description">Description</label>
+          <input
+            id="tx-description"
+            maxlength="500"
+            name="description"
+            [(ngModel)]="form.description"
+            #descriptionModel="ngModel"
+          />
+          @if (descriptionModel.invalid && (descriptionModel.touched || createForm.submitted)) {
+            <p class="field-error">Description must be at most 500 characters.</p>
+          }
+        </div>
+        <div>
+          <label for="tx-date">Date</label>
+          <input
+            id="tx-date"
+            type="date"
+            name="transactionDate"
+            [(ngModel)]="form.transactionDate"
+            #transactionDateModel="ngModel"
+            required
+          />
+          @if (
+            transactionDateModel.invalid && (transactionDateModel.touched || createForm.submitted)
+          ) {
+            <p class="field-error">Select transaction date.</p>
+          }
+        </div>
+      </div>
+      <button class="btn accent" type="submit" [disabled]="creating() || createForm.invalid">
+        {{ creating() ? 'Creating...' : 'Create Transaction' }}
+      </button>
+    </form>
+  </article>
 
-    <article class="panel">
-        <h2>Transactions</h2>
-        <div class="row cols-3">
-            <div>
-                <label for="tx-filter-type">Type</label>
-                <select id="tx-filter-type" name="filterType" [(ngModel)]="filters.type">
-                    <option value="">all</option>
-                    <option value="income">income</option>
-                    <option value="expense">expense</option>
-                </select>
-            </div>
-            <div>
-                <label for="tx-filter-category">Category</label>
-                <select id="tx-filter-category" name="filterCategory" [(ngModel)]="filters.categoryId">
-                    <option value="">all</option>
-                    <option *ngFor="let category of categories(); trackBy: trackByCategoryId" [value]="category.id">
-                        {{ category.name }}
-                    </option>
-                </select>
-            </div>
-            <div>
-                <label for="tx-filter-from">From</label>
-                <input id="tx-filter-from" type="date" name="filterFrom" [(ngModel)]="filters.from" />
-            </div>
-            <div>
-                <label for="tx-filter-to">To</label>
-                <input id="tx-filter-to" type="date" name="filterTo" [(ngModel)]="filters.to" />
-            </div>
-            <div class="actions-cell">
-                <button class="btn ghost" type="button" (click)="loadTransactions()" [disabled]="loadingTransactions()">
-                    Apply Filters
+  <article class="panel">
+    <h2>Transactions</h2>
+    <div class="row cols-3">
+      <div>
+        <label for="tx-filter-type">Type</label>
+        <select id="tx-filter-type" name="filterType" [(ngModel)]="filters.type">
+          <option value="">all</option>
+          <option value="income">income</option>
+          <option value="expense">expense</option>
+        </select>
+      </div>
+      <div>
+        <label for="tx-filter-category">Category</label>
+        <select id="tx-filter-category" name="filterCategory" [(ngModel)]="filters.categoryId">
+          <option value="">all</option>
+          @for (category of categories(); track trackByCategoryId($index, category)) {
+            <option [value]="category.id">
+              {{ category.name }}
+            </option>
+          }
+        </select>
+      </div>
+      <div>
+        <label for="tx-filter-from">From</label>
+        <input id="tx-filter-from" type="date" name="filterFrom" [(ngModel)]="filters.from" />
+      </div>
+      <div>
+        <label for="tx-filter-to">To</label>
+        <input id="tx-filter-to" type="date" name="filterTo" [(ngModel)]="filters.to" />
+      </div>
+      <div class="actions-cell">
+        <button
+          class="btn ghost"
+          type="button"
+          (click)="loadTransactions()"
+          [disabled]="loadingTransactions()"
+        >
+          Apply Filters
+        </button>
+      </div>
+    </div>
+
+    <div class="table-wrap spacer-top">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of transactions(); track trackByTransactionId($index, item)) {
+            <tr>
+              <td>{{ item.transactionDate | date: 'yyyy-MM-dd' }}</td>
+              <td>{{ item.category.name }}</td>
+              <td>{{ item.type }}</td>
+              <td
+                [ngClass]="{
+                  'text-income': item.type === 'income',
+                  'text-expense': item.type === 'expense',
+                }"
+              >
+                {{ item.amount | localizedCurrency }}
+              </td>
+              <td>{{ item.description || '-' }}</td>
+              <td>
+                <button
+                  class="btn danger"
+                  type="button"
+                  (click)="remove(item.id)"
+                  [disabled]="deletingId() === item.id"
+                >
+                  {{ deletingId() === item.id ? 'Deleting...' : 'Delete' }}
                 </button>
-            </div>
-        </div>
-
-        <div class="table-wrap spacer-top">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Category</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Description</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of transactions(); trackBy: trackByTransactionId">
-                        <td>{{ item.transactionDate | date: 'yyyy-MM-dd' }}</td>
-                        <td>{{ item.category.name }}</td>
-                        <td>{{ item.type }}</td>
-                        <td
-                            [ngClass]="{ 'text-income': item.type === 'income', 'text-expense': item.type === 'expense' }">
-                            {{ item.amount | localizedCurrency }}
-                        </td>
-                        <td>{{ item.description || '-' }}</td>
-                        <td>
-                            <button class="btn danger" type="button" (click)="remove(item.id)"
-                                [disabled]="deletingId() === item.id">
-                                {{ deletingId() === item.id ? 'Deleting...' : 'Delete' }}
-                            </button>
-                        </td>
-                    </tr>
-                    <tr *ngIf="!transactions().length && !loadingTransactions()">
-                        <td colspan="6" class="muted">No transactions found for current filters.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </article>
+              </td>
+            </tr>
+          }
+          @if (!transactions().length && !loadingTransactions()) {
+            <tr>
+              <td colspan="6" class="muted">No transactions found for current filters.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
 </section>
 
-<p class="toast" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+@if (errorMessage()) {
+  <p class="toast">{{ errorMessage() }}</p>
+}

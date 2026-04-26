@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +10,7 @@ import { CategorySpendItem, MonthlyReport, ReportsApiService } from './reports-a
   standalone: true,
   selector: 'app-reports-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, LocalizedCurrencyPipe],
+  imports: [FormsModule, LocalizedCurrencyPipe],
   templateUrl: './reports-page.component.html',
   styleUrls: ['./reports-page.component.css'],
 })
