@@ -15,10 +15,10 @@
             <p class="field-error" *ngIf="isInvalid('password')">Use at least 8 characters.</p>
         </div>
 
-        <button class="btn accent" type="submit" [disabled]="submitting">
-            {{ submitting ? 'Creating...' : 'Create Account' }}
+        <button class="btn accent" type="submit" [disabled]="submitting()">
+            {{ submitting() ? 'Creating...' : 'Create Account' }}
         </button>
-        <p class="field-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <p class="field-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
     </form>
 
     <p class="spacer-top muted">

@@ -2,17 +2,17 @@
     <article class="panel">
         <h2>Overview</h2>
         <p class="muted">Snapshot from ledger summary and reporting monthly projection.</p>
-        <button class="btn ghost" type="button" (click)="reload()" [disabled]="loading">
-            {{ loading ? 'Refreshing...' : 'Refresh' }}
+        <button class="btn ghost" type="button" (click)="reload()" [disabled]="loading()">
+            {{ loading() ? 'Refreshing...' : 'Refresh' }}
         </button>
         <div class="dashboard-meta">
             <span class="muted auto-refresh">
-                {{ loading ? 'Refreshing…' : 'Auto-refresh in ' + nextRefreshIn + 's' }}
+                {{ loading() ? 'Refreshing…' : 'Auto-refresh in ' + nextRefreshIn() + 's' }}
             </span>
         </div>
     </article>
 
-    <section class="grid cols-2" *ngIf="summary as data">
+    <section class="grid cols-2" *ngIf="summary() as data">
         <article class="panel kpi">
             <p class="label">Ledger Income</p>
             <p class="value text-income">{{ data.totalIncome | localizedCurrency }}</p>
@@ -31,7 +31,7 @@
         </article>
     </section>
 
-    <article class="panel" *ngIf="monthlyReport as report">
+    <article class="panel" *ngIf="monthlyReport() as report">
         <h3>Reporting Monthly ({{ currentYear }}-{{ currentMonth }})</h3>
         <div class="grid cols-3">
             <div>
@@ -51,4 +51,4 @@
     </article>
 </section>
 
-<p class="toast" *ngIf="errorMessage">{{ errorMessage }}</p>
+<p class="toast" *ngIf="errorMessage()">{{ errorMessage() }}</p>

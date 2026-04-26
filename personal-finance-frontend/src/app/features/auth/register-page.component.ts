@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -18,10 +18,9 @@ export class RegisterPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authFacadeService = inject(AuthFacadeService);
   private readonly router = inject(Router);
-  private readonly cdr = inject(ChangeDetectorRef);
 
-  protected submitting = false;
-  protected errorMessage = '';
+  protected readonly submitting = signal(false);
+  protected readonly errorMessage = signal('');
 
   protected readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -39,8 +38,8 @@ export class RegisterPageComponent {
       return;
     }
 
-    this.submitting = true;
-    this.errorMessage = '';
+    this.submitting.set(true);
+    this.errorMessage.set('');
 
     const payload = {
       email: this.form.controls.email.value.trim(),
@@ -50,17 +49,14 @@ export class RegisterPageComponent {
     this.authFacadeService
       .register(payload)
       .pipe(
-        finalize(() => {
-          this.submitting = false;
-          this.cdr.markForCheck();
-        }),
+        finalize(() => this.submitting.set(false)),
       )
       .subscribe({
         next: () => {
           void this.router.navigate(['/dashboard']);
         },
         error: (err: unknown) => {
-          this.errorMessage = toAppError(err, 'Registration failed. Please try again.').message;
+          this.errorMessage.set(toAppError(err, 'Registration failed. Please try again.').message);
         },
       });
   }

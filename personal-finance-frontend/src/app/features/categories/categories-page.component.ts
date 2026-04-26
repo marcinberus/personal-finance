@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   DestroyRef,
   inject,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -28,9 +28,8 @@ import {
 export class CategoriesPageComponent {
   private readonly categoriesApiService = inject(CategoriesApiService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly cdr = inject(ChangeDetectorRef);
 
-  protected categories: Category[] = [];
+  protected readonly categories = signal<Category[]>([]);
   protected filterType: '' | CategoryType = '';
 
   protected form: CategoryPayload = {
@@ -38,33 +37,30 @@ export class CategoriesPageComponent {
     type: 'expense',
   };
 
-  protected loading = false;
-  protected creating = false;
-  protected errorMessage = '';
+  protected readonly loading = signal(false);
+  protected readonly creating = signal(false);
+  protected readonly errorMessage = signal('');
 
   constructor() {
     this.load();
   }
 
   protected load(): void {
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     this.categoriesApiService
       .listCategories(this.filterType || undefined)
       .pipe(
-        finalize(() => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        }),
+        finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (categories) => {
-          this.categories = categories;
+          this.categories.set(categories);
         },
         error: (err: unknown) => {
-          this.errorMessage = toAppError(err, 'Failed to load categories.').message;
+          this.errorMessage.set(toAppError(err, 'Failed to load categories.').message);
         },
       });
   }
@@ -74,16 +70,13 @@ export class CategoriesPageComponent {
       return;
     }
 
-    this.creating = true;
-    this.errorMessage = '';
+    this.creating.set(true);
+    this.errorMessage.set('');
 
     this.categoriesApiService
       .createCategory(this.form)
       .pipe(
-        finalize(() => {
-          this.creating = false;
-          this.cdr.markForCheck();
-        }),
+        finalize(() => this.creating.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -95,11 +88,11 @@ export class CategoriesPageComponent {
           formRef.resetForm(this.form);
 
           if (!this.filterType || this.filterType === createdCategory.type) {
-            this.categories = [createdCategory, ...this.categories];
+            this.categories.update((list) => [createdCategory, ...list]);
           }
         },
         error: (err: unknown) => {
-          this.errorMessage = toAppError(err, 'Failed to create category.').message;
+          this.errorMessage.set(toAppError(err, 'Failed to create category.').message);
         },
       });
   }

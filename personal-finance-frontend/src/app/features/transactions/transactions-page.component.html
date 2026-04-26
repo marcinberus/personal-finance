@@ -8,7 +8,7 @@
                     <select id="tx-category" name="categoryId" [(ngModel)]="form.categoryId" #categoryIdModel="ngModel"
                         required>
                         <option value="" disabled>Select category</option>
-                        <option *ngFor="let category of categories; trackBy: trackByCategoryId" [value]="category.id">
+                        <option *ngFor="let category of categories(); trackBy: trackByCategoryId" [value]="category.id">
                             {{ category.name }} ({{ category.type }})
                         </option>
                     </select>
@@ -53,8 +53,8 @@
                     </p>
                 </div>
             </div>
-            <button class="btn accent" type="submit" [disabled]="creating || createForm.invalid">
-                {{ creating ? 'Creating...' : 'Create Transaction' }}
+            <button class="btn accent" type="submit" [disabled]="creating() || createForm.invalid">
+                {{ creating() ? 'Creating...' : 'Create Transaction' }}
             </button>
         </form>
     </article>
@@ -74,7 +74,7 @@
                 <label for="tx-filter-category">Category</label>
                 <select id="tx-filter-category" name="filterCategory" [(ngModel)]="filters.categoryId">
                     <option value="">all</option>
-                    <option *ngFor="let category of categories; trackBy: trackByCategoryId" [value]="category.id">
+                    <option *ngFor="let category of categories(); trackBy: trackByCategoryId" [value]="category.id">
                         {{ category.name }}
                     </option>
                 </select>
@@ -88,7 +88,7 @@
                 <input id="tx-filter-to" type="date" name="filterTo" [(ngModel)]="filters.to" />
             </div>
             <div class="actions-cell">
-                <button class="btn ghost" type="button" (click)="loadTransactions()" [disabled]="loadingTransactions">
+                <button class="btn ghost" type="button" (click)="loadTransactions()" [disabled]="loadingTransactions()">
                     Apply Filters
                 </button>
             </div>
@@ -107,7 +107,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let item of transactions; trackBy: trackByTransactionId">
+                    <tr *ngFor="let item of transactions(); trackBy: trackByTransactionId">
                         <td>{{ item.transactionDate | date: 'yyyy-MM-dd' }}</td>
                         <td>{{ item.category.name }}</td>
                         <td>{{ item.type }}</td>
@@ -118,12 +118,12 @@
                         <td>{{ item.description || '-' }}</td>
                         <td>
                             <button class="btn danger" type="button" (click)="remove(item.id)"
-                                [disabled]="deletingId === item.id">
-                                {{ deletingId === item.id ? 'Deleting...' : 'Delete' }}
+                                [disabled]="deletingId() === item.id">
+                                {{ deletingId() === item.id ? 'Deleting...' : 'Delete' }}
                             </button>
                         </td>
                     </tr>
-                    <tr *ngIf="!transactions.length && !loadingTransactions">
+                    <tr *ngIf="!transactions().length && !loadingTransactions()">
                         <td colspan="6" class="muted">No transactions found for current filters.</td>
                     </tr>
                 </tbody>
@@ -132,4 +132,4 @@
     </article>
 </section>
 
-<p class="toast" *ngIf="errorMessage">{{ errorMessage }}</p>
+<p class="toast" *ngIf="errorMessage()">{{ errorMessage() }}</p>

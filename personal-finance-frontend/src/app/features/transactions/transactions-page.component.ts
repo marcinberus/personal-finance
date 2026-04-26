@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  DestroyRef,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -30,10 +24,9 @@ import {
 export class TransactionsPageComponent {
   private readonly transactionsApiService = inject(TransactionsApiService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly cdr = inject(ChangeDetectorRef);
 
-  protected categories: Category[] = [];
-  protected transactions: Transaction[] = [];
+  protected readonly categories = signal<Category[]>([]);
+  protected readonly transactions = signal<Transaction[]>([]);
 
   protected filters: TransactionFilters = {
     type: undefined,
@@ -50,11 +43,11 @@ export class TransactionsPageComponent {
     transactionDate: this.toDateInputString(new Date()),
   };
 
-  protected loadingCategories = false;
-  protected loadingTransactions = false;
-  protected creating = false;
-  protected deletingId: string | null = null;
-  protected errorMessage = '';
+  protected readonly loadingCategories = signal(false);
+  protected readonly loadingTransactions = signal(false);
+  protected readonly creating = signal(false);
+  protected readonly deletingId = signal<string | null>(null);
+  protected readonly errorMessage = signal('');
 
   constructor() {
     this.loadCategories();
@@ -62,35 +55,32 @@ export class TransactionsPageComponent {
   }
 
   protected loadCategories(): void {
-    this.loadingCategories = true;
-    this.errorMessage = '';
+    this.loadingCategories.set(true);
+    this.errorMessage.set('');
 
     this.transactionsApiService
       .listCategories()
       .pipe(
-        finalize(() => {
-          this.loadingCategories = false;
-          this.cdr.markForCheck();
-        }),
+        finalize(() => this.loadingCategories.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (categories) => {
-          this.categories = categories;
+          this.categories.set(categories);
 
           if (!this.form.categoryId && categories.length > 0) {
             this.form.categoryId = categories[0].id;
           }
         },
         error: (err: unknown) => {
-          this.errorMessage = toAppError(err, 'Failed to load categories.').message;
+          this.errorMessage.set(toAppError(err, 'Failed to load categories.').message);
         },
       });
   }
 
   protected loadTransactions(): void {
-    this.loadingTransactions = true;
-    this.errorMessage = '';
+    this.loadingTransactions.set(true);
+    this.errorMessage.set('');
 
     this.transactionsApiService
       .listTransactions({
@@ -100,18 +90,15 @@ export class TransactionsPageComponent {
         to: this.filters.to || undefined,
       })
       .pipe(
-        finalize(() => {
-          this.loadingTransactions = false;
-          this.cdr.markForCheck();
-        }),
+        finalize(() => this.loadingTransactions.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (transactions) => {
-          this.transactions = transactions;
+          this.transactions.set(transactions);
         },
         error: (err: unknown) => {
-          this.errorMessage = toAppError(err, 'Failed to load transactions.').message;
+          this.errorMessage.set(toAppError(err, 'Failed to load transactions.').message);
         },
       });
   }
@@ -121,8 +108,8 @@ export class TransactionsPageComponent {
       return;
     }
 
-    this.creating = true;
-    this.errorMessage = '';
+    this.creating.set(true);
+    this.errorMessage.set('');
 
     this.transactionsApiService
       .createTransaction({
@@ -133,10 +120,7 @@ export class TransactionsPageComponent {
         transactionDate: this.form.transactionDate,
       })
       .pipe(
-        finalize(() => {
-          this.creating = false;
-          this.cdr.markForCheck();
-        }),
+        finalize(() => this.creating.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -148,30 +132,27 @@ export class TransactionsPageComponent {
           this.loadTransactions();
         },
         error: (err: unknown) => {
-          this.errorMessage = toAppError(err, 'Failed to create transaction.').message;
+          this.errorMessage.set(toAppError(err, 'Failed to create transaction.').message);
         },
       });
   }
 
   protected remove(id: string): void {
-    this.deletingId = id;
-    this.errorMessage = '';
+    this.deletingId.set(id);
+    this.errorMessage.set('');
 
     this.transactionsApiService
       .deleteTransaction(id)
       .pipe(
-        finalize(() => {
-          this.deletingId = null;
-          this.cdr.markForCheck();
-        }),
+        finalize(() => this.deletingId.set(null)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
-          this.transactions = this.transactions.filter((item) => item.id !== id);
+          this.transactions.update((list) => list.filter((item) => item.id !== id));
         },
         error: (err: unknown) => {
-          this.errorMessage = toAppError(err, 'Failed to delete transaction.').message;
+          this.errorMessage.set(toAppError(err, 'Failed to delete transaction.').message);
         },
       });
   }

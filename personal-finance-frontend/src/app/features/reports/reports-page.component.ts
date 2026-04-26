@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  DestroyRef,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -24,7 +18,6 @@ import { CategorySpendItem, MonthlyReport, ReportsApiService } from './reports-a
 export class ReportsPageComponent {
   private readonly reportsApiService = inject(ReportsApiService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly now = new Date();
 
@@ -38,12 +31,12 @@ export class ReportsPageComponent {
     month: this.now.getMonth() + 1,
   };
 
-  protected monthly: MonthlyReport | null = null;
-  protected categorySpend: CategorySpendItem[] = [];
+  protected readonly monthly = signal<MonthlyReport | null>(null);
+  protected readonly categorySpend = signal<CategorySpendItem[]>([]);
 
-  protected monthlyLoading = false;
-  protected categoryLoading = false;
-  protected errorMessage = '';
+  protected readonly monthlyLoading = signal(false);
+  protected readonly categoryLoading = signal(false);
+  protected readonly errorMessage = signal('');
 
   constructor() {
     this.loadMonthly();
@@ -51,8 +44,8 @@ export class ReportsPageComponent {
   }
 
   protected loadMonthly(): void {
-    this.monthlyLoading = true;
-    this.errorMessage = '';
+    this.monthlyLoading.set(true);
+    this.errorMessage.set('');
 
     const query: { year: number; month?: number } = {
       year: this.monthlyQuery.year,
@@ -65,41 +58,35 @@ export class ReportsPageComponent {
     this.reportsApiService
       .getMonthly(query)
       .pipe(
-        finalize(() => {
-          this.monthlyLoading = false;
-          this.cdr.markForCheck();
-        }),
+        finalize(() => this.monthlyLoading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (result) => {
-          this.monthly = result;
+          this.monthly.set(result);
         },
         error: (err: unknown) => {
-          this.errorMessage = toAppError(err, 'Failed to load monthly report.').message;
+          this.errorMessage.set(toAppError(err, 'Failed to load monthly report.').message);
         },
       });
   }
 
   protected loadCategorySpend(): void {
-    this.categoryLoading = true;
-    this.errorMessage = '';
+    this.categoryLoading.set(true);
+    this.errorMessage.set('');
 
     this.reportsApiService
       .getCategorySpend(this.categoryQuery)
       .pipe(
-        finalize(() => {
-          this.categoryLoading = false;
-          this.cdr.markForCheck();
-        }),
+        finalize(() => this.categoryLoading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (result) => {
-          this.categorySpend = result;
+          this.categorySpend.set(result);
         },
         error: (err: unknown) => {
-          this.errorMessage = toAppError(err, 'Failed to load category spend.').message;
+          this.errorMessage.set(toAppError(err, 'Failed to load category spend.').message);
         },
       });
   }

@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { computed, Injectable, signal } from '@angular/core';
 
 export type AuthUser = {
   id: string;
@@ -20,34 +19,28 @@ type AuthState = {
 
 @Injectable({ providedIn: 'root' })
 export class AuthStateService {
-  private readonly stateSubject = new BehaviorSubject<AuthState>({
+  private readonly _state = signal<AuthState>({
     status: 'unknown',
     user: null,
   });
 
   private accessToken: string | null = null;
 
-  readonly state$: Observable<AuthState> = this.stateSubject.asObservable();
+  readonly state = this._state.asReadonly();
+  readonly isAuthenticated = computed(() => this._state().status === 'authenticated');
+  readonly isBootstrapped = computed(() => this._state().status !== 'unknown');
 
   getAccessToken(): string | null {
     return this.accessToken;
   }
 
   getUser(): AuthUser | null {
-    return this.stateSubject.value.user;
-  }
-
-  isAuthenticated(): boolean {
-    return this.stateSubject.value.status === 'authenticated';
-  }
-
-  isBootstrapped(): boolean {
-    return this.stateSubject.value.status !== 'unknown';
+    return this._state().user;
   }
 
   setAuthenticated(session: AuthSessionPayload): void {
     this.accessToken = session.accessToken;
-    this.stateSubject.next({
+    this._state.set({
       status: 'authenticated',
       user: session.user,
     });
@@ -55,7 +48,7 @@ export class AuthStateService {
 
   setAnonymous(): void {
     this.accessToken = null;
-    this.stateSubject.next({
+    this._state.set({
       status: 'anonymous',
       user: null,
     });

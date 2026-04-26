@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { map } from 'rxjs/operators';
 import { AuthFacadeService } from './services/auth-facade.service';
 import { AuthStateService } from './services/auth-state.service';
 
@@ -67,16 +66,15 @@ export class App {
   protected readonly eyebrow = 'Distributed Finance';
   protected readonly title = 'Personal Finance';
 
-  protected readonly vm$ = this.authStateService.state$.pipe(
-    map((state) => {
-      const isAuthenticated = state.status === 'authenticated';
-      return {
-        isAuthenticated,
-        userEmail: state.user?.email ?? '',
-        navTabs: TABS.filter((tab) => tab.authOnly === isAuthenticated),
-      };
-    }),
-  );
+  protected readonly vm = computed(() => {
+    const state = this.authStateService.state();
+    const isAuthenticated = state.status === 'authenticated';
+    return {
+      isAuthenticated,
+      userEmail: state.user?.email ?? '',
+      navTabs: TABS.filter((tab) => tab.authOnly === isAuthenticated),
+    };
+  });
 
   protected logout(): void {
     this.authFacadeService.logout().subscribe({

@@ -21,10 +21,10 @@
             </p>
         </div>
 
-        <button class="btn primary" type="submit" [disabled]="submitting || loginForm.invalid">
-            {{ submitting ? 'Signing in...' : 'Sign In' }}
+        <button class="btn primary" type="submit" [disabled]="submitting() || loginForm.invalid">
+            {{ submitting() ? 'Signing in...' : 'Sign In' }}
         </button>
-        <p class="field-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <p class="field-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
     </form>
 
     <p class="spacer-top muted">
